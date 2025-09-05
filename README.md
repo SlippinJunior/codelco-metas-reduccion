@@ -4,15 +4,138 @@
 
 ## 📋 Desc### Gestión de Divisiones y Procesos (Datos Ficticios)
 
-Los catálogos están centralizados en `src/services/servicioMetas.js` con datos simulados:
+# Sistema de Metas de Reducción
 
-```javascript
-// Ejemplo académico - datos ficticios
-export const DIVISIONES = [
-  ...existentes,
-  { id: 'nueva-division', nombre: 'Nueva División' }
-];
+**Proyecto universitario** - Prototipo web para gestión de metas de reducción de emisiones.
+
+## 📋 Qué hace
+
+- ✅ **Crear metas** con formulario validado
+- ✅ **Ver dashboard** con gráficos y estadísticas  
+- ✅ **Filtrar por división** y año objetivo
+- ✅ **Exportar a CSV**
+- ✅ **Diseño responsive** y accesible
+
+> **Nota**: Proyecto académico con datos simulados, no es oficial de ninguna empresa.
+
+## 🛠️ Tecnologías
+
+- **React 18** + **Vite**
+- **Tailwind CSS** para estilos
+- **Recharts** para gráficos
+- **React Router** para navegación
+
+## 🚀 Instalación
+
+### Requisitos
+- Node.js 16+
+- npm
+
+### Pasos
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/SlippinJunior/codelco-metas-reduccion.git
+cd codelco-metas-reduccion
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Iniciar servidor de desarrollo
+npm run dev
+
+# 4. Abrir en navegador
+# http://localhost:3000
 ```
+
+## 📖 Cómo usar
+
+### 1. Dashboard Principal
+- Ve a `http://localhost:3000`
+- Explora las **3 metas de ejemplo** ya creadas
+- Revisa **gráficos** de estadísticas por división y proceso
+- Usa **filtros** para ver metas específicas
+- **Exporta** datos a CSV
+
+### 2. Crear Nueva Meta
+- Haz clic en el **botón "+"** (esquina inferior izquierda)
+- O navega a `http://localhost:3000/crear-meta`
+- Completa el formulario:
+  - **División**: Selecciona de la lista
+  - **Proceso**: molienda, chancado, fundición, etc.
+  - **Línea base**: año y valor numérico
+  - **Fecha objetivo**: debe ser futura
+  - **Nombre y descripción**
+- Haz clic en **"Crear Meta"**
+- La nueva meta aparece automáticamente en el dashboard
+
+### 3. Filtrar y Exportar
+- En el dashboard, usa los **filtros**:
+  - Por división (El Teniente, Radomiro Tomic, etc.)
+  - Por año objetivo
+- Haz clic en **"Exportar CSV"** para descargar datos
+- El archivo incluye todas las metas visibles con el filtro actual
+
+## 🧪 Validaciones Implementadas
+
+El formulario valida:
+- ✅ Campos obligatorios no vacíos
+- ✅ Fecha objetivo debe ser futura  
+- ✅ Valores numéricos positivos
+- ✅ Año de línea base válido (2015-2024)
+- ✅ Mensajes de error específicos por campo
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── components/          # Componentes React
+│   ├── FormularioMeta.jsx   # Formulario de creación
+│   ├── PanelMetas.jsx       # Dashboard principal  
+│   └── TarjetaMeta.jsx      # Tarjeta individual
+├── pages/              # Páginas
+│   ├── Dashboard.jsx       # Página principal
+│   └── CrearMeta.jsx       # Página crear meta
+├── services/           # Lógica de negocio  
+│   └── servicioMetas.js    # Manejo de datos
+└── utils/              # Utilidades
+    └── helpers.js          # Funciones auxiliares
+
+data/
+└── metas-ejemplo.json  # 3 metas de ejemplo
+```
+
+## 🎯 Datos de Ejemplo
+
+El sistema incluye 3 metas simuladas:
+1. **El Teniente - Molienda**: Reducción 25% (15% progreso)
+2. **Radomiro Tomic - Chancado**: Optimización energética (8% progreso)
+3. **Ministro Hales - Fundición**: Reducción 40% (22% progreso)
+
+## 🔧 Comandos Útiles
+
+```bash
+# Desarrollo
+npm run dev          # Servidor desarrollo
+npm run build        # Build para producción
+npm run preview      # Preview del build
+
+# Reset datos (si necesitas volver al estado inicial)
+# Abre DevTools (F12) > Application > Local Storage
+# Elimina la entrada 'codelco_metas_reduccion'
+# Recarga la página
+```
+
+## 📝 Notas
+
+- **Almacenamiento**: Los datos se guardan en LocalStorage del navegador
+- **Datos ficticios**: Todas las divisiones y procesos son ejemplos académicos
+- **Responsive**: Funciona en escritorio, tablet y móvil
+- **Accesibilidad**: Compatible con lectores de pantalla y navegación por teclado
+
+---
+
+**Proyecto académico** - Demostración de desarrollo web moderno con React
 
 **Importante**: Todas las divisiones y procesos mencionados son ejemplos académicos basados en información pública, no datos reales internos.o
 
