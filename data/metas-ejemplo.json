@@ -1,0 +1,59 @@
+[
+  {
+    "id": "meta-001",
+    "nombre": "Reducción de emisiones en molienda",
+    "division": "El Teniente",
+    "proceso": "molienda",
+    "indicador": "tCO₂e/ton Cu",
+    "lineaBase": {
+      "año": 2023,
+      "valor": 2.8
+    },
+    "fechaObjetivo": "2030-12-31",
+    "descripcion": "Meta de reducción del 25% en emisiones de CO₂ equivalente por tonelada de cobre procesado en el área de molienda",
+    "progreso": {
+      "porcentaje": 15,
+      "valorActual": 2.65
+    },
+    "fechaCreacion": "2024-01-15T10:30:00.000Z",
+    "estado": "activa"
+  },
+  {
+    "id": "meta-002", 
+    "nombre": "Optimización energética en chancado",
+    "division": "Radomiro Tomic",
+    "proceso": "chancado",
+    "indicador": "tCO₂e/ton Cu",
+    "lineaBase": {
+      "año": 2023,
+      "valor": 1.95
+    },
+    "fechaObjetivo": "2029-06-30",
+    "descripcion": "Implementación de tecnologías eficientes para reducir emisiones en un 30% en el proceso de chancado",
+    "progreso": {
+      "porcentaje": 8,
+      "valorActual": 1.87
+    },
+    "fechaCreacion": "2024-02-01T14:20:00.000Z",
+    "estado": "activa"
+  },
+  {
+    "id": "meta-003",
+    "nombre": "Reducción de huella carbono en fundición",
+    "division": "Ministro Hales",
+    "proceso": "fundicion",
+    "indicador": "tCO₂e/ton Cu",
+    "lineaBase": {
+      "año": 2022,
+      "valor": 4.2
+    },
+    "fechaObjetivo": "2028-12-31",
+    "descripcion": "Meta ambiciosa de reducción del 40% mediante modernización de hornos y sistemas de captura de emisiones",
+    "progreso": {
+      "porcentaje": 22,
+      "valorActual": 3.95
+    },
+    "fechaCreacion": "2024-01-10T09:15:00.000Z",
+    "estado": "activa"
+  }
+]
