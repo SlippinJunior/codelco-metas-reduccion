@@ -260,25 +260,6 @@ public/
 └── codelco-icon.svg     # Icono de la aplicación (opcional)
 ```
 
-## 🔧 Configuración para Proyectos Similares
-
-### Hipotética Migración a API Real
-
-Este proyecto demuestra cómo se podría conectar con una API de producción. Para proyectos reales, se modificaría el archivo `src/services/servicioMetas.js`:
-
-```javascript
-// Ejemplo hipotético de integración con API real
-export async function listarMetas() {
-  const response = await fetch('/api/metas', {
-    headers: {
-      'Authorization': `Bearer ${getAuthToken()}`,
-      'Content-Type': 'application/json'
-    }
-  });
-  return response.json();
-}
-```
-
 ### Endpoints Sugeridos (Ejemplo Académico)
 
 ```
@@ -442,73 +423,13 @@ localStorage.setItem('debug', 'codelco:*');
 console.log(localStorage.getItem('codelco_metas_reduccion'));
 ```
 
-## 🤝 Contribución y Desarrollo Académico
-
-### Contexto Universitario
-
-Este proyecto fue desarrollado como ejercicio académico para demostrar:
-- Arquitectura de aplicaciones web modernas
-- Implementación de validaciones front-end
-- Diseño de interfaces accesibles
-- Integración de librerías de gráficos
-- Buenas prácticas en React y JavaScript
-
-### Guías de Desarrollo
-
-1. **Estructura de commits**
-   ```
-   feat: agregar nueva funcionalidad
-   fix: corregir bug
-   docs: actualizar documentación
-   style: cambios de formato
-   test: agregar tests
-   ```
-
-2. **Estándares de código**
-   - Usar ESLint y Prettier
-   - Seguir convenciones de nomenclatura
-   - Agregar comentarios JSDoc para funciones públicas
 
 ## 📝 Changelog
 
-### v1.0.0 (Prototipo Inicial)
+### v1.0.0 (Prototipo Inicial Sprint 1)
 - ✅ Formulario de creación de metas con validaciones
 - ✅ Panel de visualización con filtros
 - ✅ Exportación a CSV
 - ✅ Gráficos estadísticos
 - ✅ Diseño responsivo y accesible
 - ✅ Tests automatizados básicos
-
-### Roadmap Académico
-- 🎓 Integración con APIs ficticias para demostrar arquitectura
-- 🎓 Implementación de autenticación simulada
-- 🎓 Ejemplos de notificaciones en tiempo real
-- 🎓 Templates de reportes avanzados
-- 🎓 Caso de estudio para aplicación móvil
-
-## 📞 Información del Proyecto
-
-**Autor**: Estudiante Universitario  
-**Contexto**: Proyecto Académico de Ingeniería de Software  
-**Propósito**: Demostración de tecnologías web modernas  
-**Disclaimer**: Este proyecto utiliza Codelco como caso de estudio académico. No tiene vinculación oficial con la empresa.
-
-Para consultas académicas:
-- **Documentación técnica**: Ver código comentado en `/src`
-- **Tests**: Revisar `/src/__tests__` para ejemplos de uso
-- **Configuración**: Consultar archivos de configuración en raíz del proyecto
-
-## 📄 Licencia
-
-Este es un proyecto académico universitario bajo licencia MIT para fines educativos.
-
-**⚠️ Importante**: 
-- Los datos de Codelco utilizados son públicos o simulados
-- No hay acceso a información confidencial o sistemas reales
-- El proyecto no representa opiniones oficiales de Codelco
-- Es un ejercicio puramente académico y educativo
-
----
-
-**Proyecto Universitario** - Sistema de Gestión de Metas de Reducción v1.0  
-*Caso de estudio académico para demostrar desarrollo web moderno*
