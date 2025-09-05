@@ -1,7 +1,7 @@
 {
   "name": "codelco-metas-reduccion",
   "version": "1.0.0",
-  "description": "Prototipo escalable para crear metas de reducción de emisiones - Codelco",
+  "description": "Proyecto universitario - Prototipo académico para gestión de metas de reducción (caso de estudio)",
   "type": "module",
   "jest": {
     "testEnvironment": "jsdom",
@@ -61,13 +61,15 @@
     "vite": "^4.1.0"
   },
   "keywords": [
-    "codelco",
+    "proyecto-universitario",
+    "caso-de-estudio",
     "emisiones",
     "metas",
     "reduccion",
     "react",
-    "prototipo"
+    "prototipo",
+    "academico"
   ],
-  "author": "Equipo Desarrollo Codelco",
+  "author": "Estudiante Universitario - Proyecto Académico",
   "license": "MIT"
 }

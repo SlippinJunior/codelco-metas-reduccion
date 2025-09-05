@@ -1,16 +1,36 @@
-# Sistema de Gestión de Metas de Reducción - Codelco
+# Sistema de Gestión de Metas de Reducción - Proyecto Universitario
 
-Prototipo escalable para la creación y gestión de metas de reducción de emisiones dirigido a Codelco. Este sistema permite definir, monitorear y reportar el progreso de metas ambientales por división y proceso.
+**⚠️ IMPORTANTE: Este es un proyecto académico universitario basado en supuestos y casos de estudio. No es un sistema oficial de Codelco ni tiene relación comercial con la empresa.**
 
-## 📋 Descripción del Proyecto
+## 📋 Desc### Gestión de Divisiones y Procesos (Datos Ficticios)
 
-Este prototipo demuestra las capacidades de un sistema web moderno para gestionar metas de reducción de emisiones de CO₂ equivalente en las operaciones de Codelco. Incluye formularios interactivos, paneles de control, visualizaciones de datos y exportación de reportes.
+Los catálogos están centralizados en `src/services/servicioMetas.js` con datos simulados:
 
-### Criterios de Aceptación Implementados
+```javascript
+// Ejemplo académico - datos ficticios
+export const DIVISIONES = [
+  ...existentes,
+  { id: 'nueva-division', nombre: 'Nueva División' }
+];
+```
+
+**Importante**: Todas las divisiones y procesos mencionados son ejemplos académicos basados en información pública, no datos reales internos.o
+
+Este es un prototipo académico desarrollado como parte de un proyecto universitario para demostrar el diseño e implementación de un sistema web moderno de gestión de metas de reducción de emisiones. Utiliza Codelco como caso de estudio hipotético, pero todos los datos son simulados y las funcionalidades son demostrativas.
+
+### Contexto Académico
+- **Propósito**: Proyecto universitario de Ingeniería de Software
+- **Alcance**: Prototipo funcional con fines educativos
+- **Datos**: Completamente simulados y ficticios
+- **Tecnologías**: Demostración de stack moderno React + Tailwind
+
+### Criterios de Aceptación Implementados (Académicos)
 
 - **CA-R01-1**: Esquema completo de meta con división, proceso, indicador, línea base y fecha objetivo
-- **CA-R01-2**: Validaciones front-end completas con mensajes de error específicos
+- **CA-R01-2**: Validaciones front-end completas con mensajes de error específicos  
 - **CA-R01-3**: Vista corporativa y filtrada por división con actualización en tiempo real
+
+**Nota**: Estos criterios fueron definidos como parte del ejercicio académico para demostrar buenas prácticas en desarrollo de software.
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -30,8 +50,10 @@ Este prototipo demuestra las capacidades de un sistema web moderno para gestiona
 ### Arquitectura
 - **Componentes reutilizables** - Diseño modular escalable
 - **Servicios separados** - Lógica de negocio independiente
-- **Almacenamiento local** - Persistencia para demo (fácil migración a API)
+- **Almacenamiento local** - Persistencia para demo académico
 - **Diseño responsivo** - Compatible con escritorio y móvil
+
+**Disclaimer**: Esta es una implementación académica con fines educativos. En un entorno real, se requeriría integración con sistemas corporativos, autenticación empresarial, y cumplimiento de normativas específicas.
 
 ## 🚀 Instalación y Configuración
 
@@ -115,14 +137,14 @@ public/
 └── codelco-icon.svg     # Icono de la aplicación (opcional)
 ```
 
-## 🔧 Configuración para Producción
+## 🔧 Configuración para Proyectos Similares
 
-### Migración a API Real
+### Hipotética Migración a API Real
 
-Para conectar con la API de producción de Codelco, modifica el archivo `src/services/servicioMetas.js`:
+Este proyecto demuestra cómo se podría conectar con una API de producción. Para proyectos reales, se modificaría el archivo `src/services/servicioMetas.js`:
 
 ```javascript
-// Reemplazar las funciones de localStorage por llamadas HTTP
+// Ejemplo hipotético de integración con API real
 export async function listarMetas() {
   const response = await fetch('/api/metas', {
     headers: {
@@ -132,21 +154,9 @@ export async function listarMetas() {
   });
   return response.json();
 }
-
-export async function crearMeta(metaData) {
-  const response = await fetch('/api/metas', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${getAuthToken()}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(metaData)
-  });
-  return response.json();
-}
 ```
 
-### Endpoints Sugeridos
+### Endpoints Sugeridos (Ejemplo Académico)
 
 ```
 GET    /api/metas              # Listar todas las metas
@@ -156,19 +166,23 @@ DELETE /api/metas/:id          # Eliminar meta
 GET    /api/metas/stats        # Obtener estadísticas
 GET    /api/divisiones         # Catálogo de divisiones
 GET    /api/procesos           # Catálogo de procesos
-GET    /api/indicadores        # Catálogo de indicadores
 ```
 
-### Variables de Entorno
+**Nota**: Estos endpoints son ejemplos didácticos para demostrar diseño de API REST.
 
-Crear archivo `.env` para configuración:
+### Variables de Entorno (Ejemplo Académico)
+
+Crear archivo `.env` para configuración en proyectos reales:
 
 ```env
-VITE_API_BASE_URL=https://api.codelco.com
+# Ejemplo de configuración para proyectos similares
+VITE_API_BASE_URL=https://api.empresa.com
 VITE_API_VERSION=v1
 VITE_ENABLE_ANALYTICS=true
 VITE_ENVIRONMENT=production
 ```
+
+**Nota**: Las URLs y configuraciones son ejemplos didácticos.
 
 ## 🧪 Testing y Validación
 
@@ -305,9 +319,18 @@ localStorage.setItem('debug', 'codelco:*');
 console.log(localStorage.getItem('codelco_metas_reduccion'));
 ```
 
-## 🤝 Contribución y Desarrollo
+## 🤝 Contribución y Desarrollo Académico
 
-### Guías de Contribución
+### Contexto Universitario
+
+Este proyecto fue desarrollado como ejercicio académico para demostrar:
+- Arquitectura de aplicaciones web modernas
+- Implementación de validaciones front-end
+- Diseño de interfaces accesibles
+- Integración de librerías de gráficos
+- Buenas prácticas en React y JavaScript
+
+### Guías de Desarrollo
 
 1. **Estructura de commits**
    ```
@@ -318,12 +341,7 @@ console.log(localStorage.getItem('codelco_metas_reduccion'));
    test: agregar tests
    ```
 
-2. **Pull Requests**
-   - Incluir tests para nueva funcionalidad
-   - Actualizar documentación relevante
-   - Verificar que pasan todos los tests
-
-3. **Estándares de código**
+2. **Estándares de código**
    - Usar ESLint y Prettier
    - Seguir convenciones de nomenclatura
    - Agregar comentarios JSDoc para funciones públicas
@@ -338,26 +356,36 @@ console.log(localStorage.getItem('codelco_metas_reduccion'));
 - ✅ Diseño responsivo y accesible
 - ✅ Tests automatizados básicos
 
-### Roadmap Futuro
-- 🔄 Integración con API de producción
-- 🔄 Autenticación y autorización
-- 🔄 Notificaciones en tiempo real
-- 🔄 Reportes avanzados
-- 🔄 Mobile app nativa
+### Roadmap Académico
+- 🎓 Integración con APIs ficticias para demostrar arquitectura
+- 🎓 Implementación de autenticación simulada
+- 🎓 Ejemplos de notificaciones en tiempo real
+- 🎓 Templates de reportes avanzados
+- 🎓 Caso de estudio para aplicación móvil
 
-## 📞 Soporte
+## 📞 Información del Proyecto
 
-Para consultas técnicas o reportar problemas:
+**Autor**: Estudiante Universitario  
+**Contexto**: Proyecto Académico de Ingeniería de Software  
+**Propósito**: Demostración de tecnologías web modernas  
+**Disclaimer**: Este proyecto utiliza Codelco como caso de estudio académico. No tiene vinculación oficial con la empresa.
 
+Para consultas académicas:
 - **Documentación técnica**: Ver código comentado en `/src`
 - **Tests**: Revisar `/src/__tests__` para ejemplos de uso
 - **Configuración**: Consultar archivos de configuración en raíz del proyecto
 
 ## 📄 Licencia
 
-Este es un prototipo de desarrollo para Codelco. Todos los derechos reservados.
+Este es un proyecto académico universitario bajo licencia MIT para fines educativos.
+
+**⚠️ Importante**: 
+- Los datos de Codelco utilizados son públicos o simulados
+- No hay acceso a información confidencial o sistemas reales
+- El proyecto no representa opiniones oficiales de Codelco
+- Es un ejercicio puramente académico y educativo
 
 ---
 
-**Desarrollado para Codelco** - Sistema de Gestión de Metas de Reducción v1.0  
-*Prototipo escalable preparado para integración con sistemas corporativos*
+**Proyecto Universitario** - Sistema de Gestión de Metas de Reducción v1.0  
+*Caso de estudio académico para demostrar desarrollo web moderno*
