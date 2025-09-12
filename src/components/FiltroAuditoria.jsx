@@ -12,17 +12,17 @@ function FiltroAuditoria({ onChange, initial = {} }) {
   };
 
   return (
-    <form onSubmit={submit} className="bg-white p-4 rounded shadow-sm flex space-x-3 items-end">
+    <form onSubmit={submit} className="audit-filter flex space-x-3 items-end">
       <div>
-        <label className="text-sm block text-gray-600">Usuario</label>
+        <label className="form-label">Usuario</label>
         <input value={usuario} onChange={e=>setUsuario(e.target.value)} className="input" placeholder="usuario" />
       </div>
       <div>
-        <label className="text-sm block text-gray-600">Entidad</label>
+        <label className="form-label">Entidad</label>
         <input value={entidad} onChange={e=>setEntidad(e.target.value)} className="input" placeholder="metas|sensores|reportes" />
       </div>
       <div>
-        <label className="text-sm block text-gray-600">Acción</label>
+        <label className="form-label">Acción</label>
         <select value={accion} onChange={e=>setAccion(e.target.value)} className="input">
           <option value="">(todas)</option>
           <option value="crear">crear</option>
@@ -33,7 +33,7 @@ function FiltroAuditoria({ onChange, initial = {} }) {
         </select>
       </div>
       <div className="flex-1">
-        <label className="text-sm block text-gray-600">Buscar</label>
+        <label className="form-label">Buscar</label>
         <input value={q} onChange={e=>setQ(e.target.value)} className="input w-full" placeholder="texto libre" />
       </div>
       <div>

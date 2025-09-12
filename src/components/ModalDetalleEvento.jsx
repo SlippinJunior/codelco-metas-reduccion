@@ -2,11 +2,11 @@ import React from 'react';
 
 function ModalDetalleEvento({ evento, onClose }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg max-w-2xl w-full p-4">
+    <div className="modal-overlay">
+      <div className="modal-content">
         <div className="flex justify-between items-center mb-2">
           <h3 className="text-lg font-semibold">Detalle Evento {evento.id}</h3>
-          <button onClick={onClose} className="text-gray-500">Cerrar</button>
+          <button onClick={onClose} className="text-codelco-accent font-medium">Cerrar</button>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

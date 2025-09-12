@@ -35,15 +35,20 @@ function VistaAuditoria() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Panel de Auditoría</h1>
-      <FiltroAuditoria onChange={setFiltros} initial={filtros} />
-      <div className="mt-4 mb-2 flex items-center justify-between">
-        <div className="text-sm text-gray-600">Total: {result.total}</div>
-        <div>
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-semibold">Panel de Auditoría</h1>
+          <div className="text-sm text-gray-600">Total: {result.total}</div>
+        </div>
+
+        <FiltroAuditoria onChange={setFiltros} initial={filtros} />
+
+        <div className="mt-4 mb-2 flex items-center justify-end">
           <button onClick={onExport} className="btn-primary">Exportar CSV</button>
         </div>
+
+        <TablaEventos eventos={result.data} loading={loading} onPage={(p) => setFiltros(s => ({ ...s, page: p }))} />
       </div>
-      <TablaEventos eventos={result.data} loading={loading} onPage={(p) => setFiltros(s => ({ ...s, page: p }))} />
     </div>
   );
 }

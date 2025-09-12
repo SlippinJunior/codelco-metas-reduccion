@@ -13,14 +13,14 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <form onSubmit={submit} className="bg-white p-6 rounded shadow-md w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">Iniciar Sesión (Simulado)</h2>
-        <label className="block text-sm text-gray-600">Usuario</label>
-        <input value={usuario} onChange={e=>setUsuario(e.target.value)} className="input mb-3 w-full" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-codelco-light">
+      <form onSubmit={submit} className="card w-full max-w-md">
+        <h2 className="text-2xl font-semibold mb-4">Iniciar Sesión (Simulado)</h2>
+        <label className="form-label">Usuario</label>
+        <input value={usuario} onChange={e=>setUsuario(e.target.value)} className="input mb-3" />
 
-        <label className="block text-sm text-gray-600">Rol</label>
-        <select value={rol} onChange={e=>setRol(e.target.value)} className="input mb-4 w-full">
+        <label className="form-label">Rol</label>
+        <select value={rol} onChange={e=>setRol(e.target.value)} className="input mb-4">
           <option value="control-interno">control-interno</option>
           <option value="auditor">auditor</option>
           <option value="jefe-operaciones">jefe-operaciones</option>
