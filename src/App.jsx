@@ -2,6 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CrearMeta from './pages/CrearMeta';
+import VistaProgreso from './views/VistaProgreso';
+import VistaAuditoria from './views/VistaAuditoria';
+import Login from './pages/Login';
+import Header from './components/Header';
 
 /**
  * Componente principal de la aplicación
@@ -13,6 +17,7 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <Header />
         {/* Navegación global (opcional, para futuras extensiones) */}
         <div className="sr-only">
           <a href="#main-content" className="skip-link">
@@ -28,6 +33,11 @@ function App() {
             
             {/* Dashboard principal - CA-R01-3: vista corporativa y filtrada */}
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            {/* Vista de progreso: Real vs Meta */}
+            <Route path="/progreso" element={<VistaProgreso />} />
+            {/* Panel de Auditoría - acceso simulado por rol */}
+            <Route path="/auditoria" element={<VistaAuditoria />} />
             
             {/* Crear meta - CA-R01-1 y CA-R01-2: formulario con validaciones */}
             <Route path="/crear-meta" element={<CrearMeta />} />

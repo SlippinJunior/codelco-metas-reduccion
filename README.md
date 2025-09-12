@@ -433,3 +433,38 @@ console.log(localStorage.getItem('codelco_metas_reduccion'));
 - ✅ Gráficos estadísticos
 - ✅ Diseño responsivo y accesible
 - ✅ Tests automatizados básicos
+
+## 🔍 Nueva vista: Progreso (Real vs Meta)
+
+Se agregó un módulo demostrativo accesible en la ruta `/progreso` que muestra el progreso real frente a la meta por mes.
+
+Cómo probar:
+
+1. Inicia la aplicación en desarrollo:
+
+```bash
+npm install
+npm run dev
+```
+
+2. Abre en el navegador `http://localhost:3000/progreso`
+
+3. Selecciona División, Proceso y Periodo (Año/Semestre/Trimestre). El gráfico mostrará dos series: "Meta" (azul) y "Real" (naranja).
+
+4. Bajo el gráfico verás un resumen con porcentaje de cumplimiento y el tiempo de render inicial (ms).
+
+Pruebas de rendimiento (simuladas):
+
+- El módulo mide el tiempo desde la generación de datos hasta que el gráfico está montado usando `performance.now()`.
+- Si el tiempo total supera 2000 ms, aparece un banner de advertencia y se registra el tiempo en la consola.
+
+Notas de integración:
+
+- `src/services/servicioDatosSimulados.js` genera lecturas mensuales simuladas. Para conectar con datos reales, reemplazar por una función `fetchDatosReales(apiConfig)` exportada desde el mismo archivo o implementar un adaptador que llame a la API corporativa.
+- La función principal a reemplazar es `generarDatosReales(metas, periodo)`.
+
+Recomendaciones para producción:
+
+- Agregar paginación/agregación en servidor si los volúmenes crecen (evitar enviar 1000s de puntos al cliente).
+- Cachear resultados por periodo/división/proceso.
+- Precalcular agregados en backend cuando sea posible.

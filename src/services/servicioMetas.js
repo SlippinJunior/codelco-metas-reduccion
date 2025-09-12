@@ -15,6 +15,7 @@
  */
 
 import metasEjemplo from '../../data/metas-ejemplo.json';
+import servicioAuditoria from './servicioAuditoria';
 
 // Clave para almacenamiento local
 const STORAGE_KEY = 'codelco_metas_reduccion';
@@ -111,8 +112,11 @@ export async function crearMeta(metaData) {
     // Guardar en localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(metas));
     
-    // Simular delay de red
-    await new Promise(resolve => setTimeout(resolve, 500));
+  // Simular delay de red
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // Registrar auditoría (no bloquear flujo)
+  registrarCreacionAudit(nuevaMeta);
     
     return {
       success: true,
@@ -127,6 +131,25 @@ export async function crearMeta(metaData) {
       message: 'Error al crear la meta'
     };
   }
+}
+
+// Integración de auditoría: registrar creación de meta
+// Nota: ya se registra en crearMeta para pruebas; para update/delete seguir patrón similar.
+async function registrarCreacionAudit(meta) {
+  try {
+    await servicioAuditoria.agregarEvento({
+      usuario: (JSON.parse(localStorage.getItem('currentUser') || '{}').usuario) || 'anon',
+      rol: (JSON.parse(localStorage.getItem('currentUser') || '{}').rol) || 'usuario',
+      accion: 'crear',
+      entidad: 'metas',
+      entidad_id: meta.id,
+      fecha_hora: new Date().toISOString(),
+      motivo: 'Creación desde UI',
+      detalle_anterior: null,
+      detalle_nuevo: meta,
+      ip_origen: '127.0.0.1'
+    });
+  } catch (e) { /* ignore */ }
 }
 
 /**
@@ -354,3 +377,90 @@ export const validadores = {
     };
   }
 };
+
+/**
+ * Actualiza una meta existente por ID
+ * @param {string} id - ID de la meta a actualizar
+ * @param {Object} cambios - Campos a modificar
+ */
+export async function actualizarMeta(id, cambios = {}) {
+  try {
+    inicializarStorage();
+    const metas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const idx = metas.findIndex(m => m.id === id);
+    if (idx === -1) return { success: false, message: 'Meta no encontrada' };
+
+    const anterior = { ...metas[idx] };
+    metas[idx] = { ...metas[idx], ...cambios };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(metas));
+
+    // Simular delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Registrar auditoría (no bloquear flujo)
+    (async () => {
+      try {
+        await servicioAuditoria.agregarEvento({
+          usuario: (JSON.parse(localStorage.getItem('currentUser') || '{}').usuario) || 'anon',
+          rol: (JSON.parse(localStorage.getItem('currentUser') || '{}').rol) || 'usuario',
+          accion: 'modificar',
+          entidad: 'metas',
+          entidad_id: id,
+          fecha_hora: new Date().toISOString(),
+          motivo: 'Actualización desde UI',
+          detalle_anterior: anterior,
+          detalle_nuevo: metas[idx],
+          ip_origen: '127.0.0.1'
+        });
+      } catch (e) { /* ignore */ }
+    })();
+
+    return { success: true, data: metas[idx], message: 'Meta actualizada' };
+  } catch (error) {
+    console.error('Error al actualizar meta:', error);
+    return { success: false, message: 'Error al actualizar meta' };
+  }
+}
+
+/**
+ * Elimina una meta por ID
+ * @param {string} id
+ */
+export async function eliminarMeta(id) {
+  try {
+    inicializarStorage();
+    const metas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const idx = metas.findIndex(m => m.id === id);
+    if (idx === -1) return { success: false, message: 'Meta no encontrada' };
+
+    const anterior = metas[idx];
+    metas.splice(idx, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(metas));
+
+    // Simular delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Registrar auditoría (no bloquear flujo)
+    (async () => {
+      try {
+        await servicioAuditoria.agregarEvento({
+          usuario: (JSON.parse(localStorage.getItem('currentUser') || '{}').usuario) || 'anon',
+          rol: (JSON.parse(localStorage.getItem('currentUser') || '{}').rol) || 'usuario',
+          accion: 'eliminar',
+          entidad: 'metas',
+          entidad_id: id,
+          fecha_hora: new Date().toISOString(),
+          motivo: 'Eliminación desde UI',
+          detalle_anterior: anterior,
+          detalle_nuevo: null,
+          ip_origen: '127.0.0.1'
+        });
+      } catch (e) { /* ignore */ }
+    })();
+
+    return { success: true, message: 'Meta eliminada' };
+  } catch (error) {
+    console.error('Error al eliminar meta:', error);
+    return { success: false, message: 'Error al eliminar meta' };
+  }
+}
