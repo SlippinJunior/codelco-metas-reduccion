@@ -76,6 +76,57 @@ npm run dev
 - Haz clic en **"Exportar CSV"** para descargar datos
 - El archivo incluye todas las metas visibles con el filtro actual
 
+### 4. Exportar reportes comparativos (PDF + CSV con firma simulada)
+1. Navega a la ruta `/exportar-reportes` desde el encabezado o el panel de metas.
+2. Selecciona las **divisiones** (por ejemplo, *El Teniente* y *Ministro Hales*), el periodo (ej. *Año 2024*) y, si deseas, procesos específicos.
+3. Marca la casilla **“Incluir historial de cambios”** para adjuntar eventos desde la auditoría del prototipo.
+4. Ingresa el nombre del **firmante** (ejemplo sugerido: `Gerente Sustentabilidad - Demo`).
+5. Opcional: pulsa **“Ver previsualización”** para revisar la portada y el índice del reporte antes de generar los archivos.
+6. Presiona **“Generar PDF”** para descargar `reporte_comparativo.pdf`. Verifica en el documento:
+    - Portada con logo, periodo, divisiones y firmante ingresado.
+    - Índice de contenidos.
+    - Secciones por división con resumen, tabla comparativa y gráfico meta vs real.
+    - Sección de historial (si fue seleccionada).
+    - Bloque final “Firma digital simulada — para demostración” con nombre, fecha y hash Base64.
+7. Presiona **“Generar CSV”** para descargar `reporte_comparativo.csv`, el archivo opcional `historial_cambios.csv` y `firma_reporte.txt` con el detalle de la firma simulada (nombre, fecha y hash).
+8. Para validar manualmente la firma, abre `firma_reporte.txt` y compara el hash con el que aparece en pantalla o en el bloque final del PDF.
+
+> ℹ️ **Nota:** el proceso de firma es completamente demostrativo: el hash se calcula con `crypto.subtle.digest` en el navegador y no representa un firmado electrónico legal. Su propósito es evidenciar el flujo de generación y verificación dentro del prototipo.
+
+### 5. Simulador de Sensores (MQTT / HTTP demo)
+1. En el encabezado selecciona **“Sensores”** o visita `http://localhost:3000/sensores`.
+2. Completa el formulario **“Dar de alta un nuevo sensor”** con los campos obligatorios. Ejemplo rápido:
+   - Nombre: `Medidor M1`
+   - Tipo: `Electricidad`
+   - División: `Ministro Hales`
+   - Protocolo: `MQTT`
+   - Topic: `codelco/sensores/m1`
+   - Frecuencia: `10`
+3. Pulsa **“Dar de alta”** y verifica que el sensor aparezca en la lista.
+4. Haz clic en **“Ver detalle”** y luego activa **“Simulación automática”**. El servicio interno generará paquetes cada *N* segundos y actualizará la última transmisión.
+5. Utiliza **“Simular paquete ahora”** para disparar un paquete manual y revisa el acuse de recibo en el panel lateral.
+6. Observa cómo la columna **“Última transmisión”** de la lista cambia a *“hace X minutos”* y cómo se almacenan los acuses en la tabla inferior.
+7. Desde el detalle puedes **exportar el historial en CSV**, detener la simulación automática o volver a la vista general.
+8. Para eliminar el sensor, pulsa **“Eliminar”** en la tarjeta y confirma. El prototipo registra el evento en la auditoría si el servicio está disponible.
+
+> 💡 El demo inicial carga cuatro sensores reales de ejemplo desde `data/sensores-ejemplo.json`. Puedes restablecer el estado borrando la clave `codelco_sensores_demo` en el localStorage del navegador.
+
+### 6. Módulo demonstrativo de anomalías y validación
+1. Desde el encabezado abre **“Anomalías”** o visita `http://localhost:3000/anomalias`.
+2. Revisa el panel de filtros superior para segmentar por sensor, división, tipo de lectura, estado o rango de fechas. Puedes activar *“Mostrar solo lecturas marcadas como anómalas”* para priorizar los casos críticos.
+3. La tabla muestra las lecturas detectadas con sus motivos (Rango, Salto, Outlier), el score automático y el estado de validación. Selecciona una o varias filas usando los checkboxes.
+4. Haz clic en **“Ver / Validar”** para abrir el detalle. El modal incluye:
+   - Resumen de la lectura y score.
+   - Motivos que originaron la anomalía.
+   - Sparkline y lista de las últimas 10 lecturas cercanas para comparar contexto.
+   - Formulario para aprobar o rechazar con comentario. Recuerda: el comentario es obligatorio para rechazar.
+5. Al aprobar, la lectura vuelve a participar en los cálculos demostrativos. Al rechazar, `participaEnCalculos` queda en `false` y se registra un evento en el módulo de auditoría (si está habilitado).
+6. Para validar en lote, selecciona varias lecturas, escribe un comentario (obligatorio al rechazar) y usa los botones **“Aprobar lote”** o **“Rechazar lote”**.
+7. Puedes exportar las lecturas filtradas en CSV para evidencias. El archivo incluye columnas con los motivos identificados.
+8. Ajusta los parámetros de detección en **“Parámetros de reglas (demo)”**: modifica rangos, umbral de saltos o z-score y pulsa **“Guardar configuración”**. Usa **“Restaurar valores por defecto”** si deseas volver a la configuración base.
+
+> ℹ️ Todo el comportamiento estadístico y de auditoría es demostrativo y se ejecuta en el navegador utilizando `localStorage`. Los datos de ejemplo se definen en `data/lecturas-ejemplo.json`.
+
 ## 🧪 Validaciones Implementadas
 
 El formulario valida:

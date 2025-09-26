@@ -4,8 +4,11 @@ import Dashboard from './pages/Dashboard';
 import CrearMeta from './pages/CrearMeta';
 import VistaProgreso from './views/VistaProgreso';
 import VistaAuditoria from './views/VistaAuditoria';
+import VistaSensores from './views/VistaSensores';
+import VistaAnomalias from './views/VistaAnomalias';
 import Login from './pages/Login';
 import Header from './components/Header';
+import ExportarReportes from './components/ExportarReportes';
 
 /**
  * Componente principal de la aplicación
@@ -38,6 +41,15 @@ function App() {
             <Route path="/progreso" element={<VistaProgreso />} />
             {/* Panel de Auditoría - acceso simulado por rol */}
             <Route path="/auditoria" element={<VistaAuditoria />} />
+
+            {/* Módulo demostrativo de sensores */}
+            <Route path="/sensores" element={<VistaSensores />} />
+
+            {/* Módulo demostrativo de anomalías */}
+            <Route path="/anomalias" element={<VistaAnomalias />} />
+
+            {/* Exportar reportes comparativos */}
+            <Route path="/exportar-reportes" element={<ExportarReportes />} />
             
             {/* Crear meta - CA-R01-1 y CA-R01-2: formulario con validaciones */}
             <Route path="/crear-meta" element={<CrearMeta />} />

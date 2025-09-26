@@ -19,6 +19,9 @@ function Header() {
           <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoría</Link>
         )}
         <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
+        <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
+        <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>
+  <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalías</Link>
       </div>
       <div>
         {user ? (

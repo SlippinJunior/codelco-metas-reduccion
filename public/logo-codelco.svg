@@ -1,0 +1,14 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Logotipo demostrativo Codelco</title>
+  <desc id="desc">Escudo circular con barra horizontal, estilizado en tonos cobre</desc>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="20" fill="#0f172a" />
+  <circle cx="60" cy="44" r="28" fill="url(#grad)" />
+  <rect x="26" y="72" width="68" height="10" rx="5" fill="url(#grad)" />
+  <rect x="36" y="88" width="48" height="10" rx="5" fill="url(#grad)" />
+</svg>

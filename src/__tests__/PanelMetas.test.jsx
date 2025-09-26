@@ -1,6 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import PanelMetas from '../components/PanelMetas';
 import * as servicioMetas from '../services/servicioMetas';
 
@@ -22,6 +23,13 @@ jest.mock('recharts', () => ({
 }));
 
 describe('PanelMetas', () => {
+  const renderPanel = (props = {}) =>
+    render(
+      <MemoryRouter>
+        <PanelMetas {...props} />
+      </MemoryRouter>
+    );
+
   const metasDePrueba = [
     {
       id: 'meta-001',
@@ -95,7 +103,7 @@ describe('PanelMetas', () => {
   });
 
   test('CA-R01-3: debe mostrar metas en vista corporativa (todas las divisiones)', async () => {
-    render(<PanelMetas />);
+    renderPanel();
 
     // Esperar a que carguen las metas
     await waitFor(() => {
@@ -105,8 +113,12 @@ describe('PanelMetas', () => {
     // Verificar que se muestran las metas de ambas divisiones
     expect(screen.getByText('Meta Test 1')).toBeInTheDocument();
     expect(screen.getByText('Meta Test 2')).toBeInTheDocument();
-    expect(screen.getByText('El Teniente')).toBeInTheDocument();
-    expect(screen.getByText('Radomiro Tomic')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 3, name: /El Teniente \(1 meta\)/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 3, name: /Radomiro Tomic \(1 meta\)/i })
+    ).toBeInTheDocument();
   });
 
   test('CA-R01-3: debe filtrar metas por división', async () => {
@@ -118,7 +130,7 @@ describe('PanelMetas', () => {
       data: [metasDePrueba[0]] // Solo la primera meta
     });
 
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();
@@ -135,30 +147,36 @@ describe('PanelMetas', () => {
   });
 
   test('debe mostrar estadísticas correctamente', async () => {
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument(); // Total metas
-      expect(screen.getByText('12%')).toBeInTheDocument(); // Progreso promedio
+      expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();
     });
 
-    // Verificar etiquetas de estadísticas
-    expect(screen.getByText('Total Metas')).toBeInTheDocument();
+    const totalMetasLabel = screen.getByText('Total Metas');
+    const totalMetasContainer = totalMetasLabel.parentElement;
+    expect(totalMetasContainer).not.toBeNull();
+    expect(within(totalMetasContainer).getByText('2')).toBeInTheDocument();
+
+    const progresoLabel = screen.getByText('Progreso Prom.');
+    const progresoContainer = progresoLabel.parentElement;
+    expect(progresoContainer).not.toBeNull();
+    expect(within(progresoContainer).getByText(/12\s*%/)).toBeInTheDocument();
+
     expect(screen.getByText('Activas')).toBeInTheDocument();
-    expect(screen.getByText('Progreso Prom.')).toBeInTheDocument();
   });
 
   test('debe manejar exportación de CSV', async () => {
     const user = userEvent.setup();
     
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();
     });
 
     // Hacer clic en exportar
-    const exportButton = screen.getByRole('button', { name: /exportar csv/i });
+    const exportButton = screen.getByRole('button', { name: /exportar .*csv/i });
     await user.click(exportButton);
 
     // Verificar que se llamó la función de exportación
@@ -188,13 +206,19 @@ describe('PanelMetas', () => {
       }
     });
 
-    render(<PanelMetas />);
+    servicioMetas.filtrarMetas = jest.fn().mockResolvedValue({
+      success: true,
+      data: []
+    });
+
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('No hay metas que mostrar')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/aún no se han creado metas de reducción/i)).toBeInTheDocument();
+    const mensajeSinMetas = await screen.findByTestId('mensaje-sin-metas');
+    expect(mensajeSinMetas).toHaveTextContent('Cree la primera meta para comenzar');
   });
 
   test('debe mostrar indicador de carga', () => {
@@ -202,7 +226,7 @@ describe('PanelMetas', () => {
     servicioMetas.listarMetas = jest.fn().mockImplementation(() => new Promise(() => {}));
     servicioMetas.obtenerEstadisticas = jest.fn().mockImplementation(() => new Promise(() => {}));
 
-    render(<PanelMetas />);
+    renderPanel();
 
     expect(screen.getByText('Cargando metas...')).toBeInTheDocument();
   });
@@ -213,7 +237,7 @@ describe('PanelMetas', () => {
       message: 'Error al obtener las metas'
     });
 
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Error al cargar datos')).toBeInTheDocument();
@@ -227,7 +251,7 @@ describe('PanelMetas', () => {
   test('debe limpiar filtros correctamente', async () => {
     const user = userEvent.setup();
     
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();
@@ -248,7 +272,7 @@ describe('PanelMetas', () => {
   test('debe actualizar contador externo cuando se proporciona', async () => {
     const mockActualizarContador = jest.fn();
     
-    render(<PanelMetas actualizarContador={mockActualizarContador} />);
+    renderPanel({ actualizarContador: mockActualizarContador });
 
     await waitFor(() => {
       expect(mockActualizarContador).toHaveBeenCalledWith(2);
@@ -256,24 +280,24 @@ describe('PanelMetas', () => {
   });
 
   test('debe agrupar metas por división correctamente', async () => {
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();
     });
 
     // Verificar que aparecen los nombres de división como encabezados de grupo
-    expect(screen.getByText('El Teniente')).toBeInTheDocument();
-    expect(screen.getByText('Radomiro Tomic')).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 3, name: /El Teniente \(1 meta\)/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { level: 3, name: /Radomiro Tomic \(1 meta\)/i })).toBeInTheDocument();
 
     // Verificar contadores de metas por división
-    expect(screen.getByText('(1 meta)')).toBeInTheDocument();
+  expect(screen.getAllByText(/\(1 meta\)/i)).toHaveLength(2);
   });
 
   test('debe filtrar por año objetivo', async () => {
     const user = userEvent.setup();
     
-    render(<PanelMetas />);
+    renderPanel();
 
     await waitFor(() => {
       expect(screen.getByText('Panel de Metas de Reducción')).toBeInTheDocument();

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import TarjetaMeta from './TarjetaMeta';
 import { listarMetas, filtrarMetas, exportarMetasCSV, obtenerEstadisticas, DIVISIONES } from '../services/servicioMetas';
@@ -13,6 +14,7 @@ import { listarMetas, filtrarMetas, exportarMetasCSV, obtenerEstadisticas, DIVIS
  * - actualizarContador: función para actualizar contador externo (opcional)
  */
 const PanelMetas = ({ actualizarContador }) => {
+  const navigate = useNavigate();
   // Estado principal
   const [metas, setMetas] = useState([]);
   const [metasFiltradas, setMetasFiltradas] = useState([]);
@@ -373,7 +375,7 @@ const PanelMetas = ({ actualizarContador }) => {
           </div>
 
           {/* Controles de exportación */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-end">
             <button
               onClick={manejarExportacion}
               className="btn-accent"
@@ -386,6 +388,17 @@ const PanelMetas = ({ actualizarContador }) => {
                 </svg>
                 Exportar CSV ({metasFiltradas.length})
               </span>
+            </button>
+            <button
+              onClick={() => navigate('/exportar-reportes')}
+              className="btn-secondary flex items-center"
+              type="button"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6a2 2 0 012-2h6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h6m0 0v6" />
+              </svg>
+              Exportar reportes
             </button>
           </div>
         </div>
@@ -419,7 +432,7 @@ const PanelMetas = ({ actualizarContador }) => {
           <h3 className="text-lg font-semibold text-codelco-dark mb-2">
             No hay metas que mostrar
           </h3>
-          <p className="text-codelco-secondary">
+          <p className="text-codelco-secondary" data-testid="mensaje-sin-metas">
             {filtros.division || filtros.año 
               ? 'No se encontraron metas con los filtros aplicados. Intente modificar los criterios de búsqueda.'
               : 'Aún no se han creado metas de reducción. Cree la primera meta para comenzar.'

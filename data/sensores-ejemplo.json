@@ -1,0 +1,289 @@
+[
+  {
+    "id": "sensor-001",
+    "nombre": "Camión Diésel 21",
+    "tipo": "combustible",
+    "division": "División El Teniente",
+    "protocolo": "MQTT",
+    "credenciales": {
+      "topic": "codelco/sensores/camion21",
+      "secreto": "demo-secret-21"
+    },
+    "frecuenciaSegundos": 10,
+    "descripcion": "Monitorea consumo instantáneo de diésel en flota minera.",
+    "estado": "operativo",
+    "ultimaTransmision": "2025-09-26T11:24:30.000Z",
+    "historialTransmisiones": [
+      {
+        "id": "pkg-001-1",
+        "timestamp": "2025-09-26T11:24:30.000Z",
+        "payload": {
+          "consumo_litros": 32.4,
+          "rpm_motor": 1850,
+          "temperatura_motor": 78.2
+        },
+        "protocolo": "MQTT"
+      },
+      {
+        "id": "pkg-001-2",
+        "timestamp": "2025-09-26T11:24:20.000Z",
+        "payload": {
+          "consumo_litros": 31.8,
+          "rpm_motor": 1820,
+          "temperatura_motor": 77.9
+        },
+        "protocolo": "MQTT"
+      },
+      {
+        "id": "pkg-001-3",
+        "timestamp": "2025-09-26T11:24:10.000Z",
+        "payload": {
+          "consumo_litros": 32.1,
+          "rpm_motor": 1835,
+          "temperatura_motor": 78.5
+        },
+        "protocolo": "MQTT"
+      }
+    ],
+    "acuses": [
+      {
+        "id": "ack-001-1",
+        "paqueteId": "pkg-001-1",
+        "sensorId": "sensor-001",
+        "fecha_hora_acuse": "2025-09-26T11:24:30.300Z",
+        "estado": "recibido",
+        "mensaje": "Paquete confirmado en broker demo."
+      },
+      {
+        "id": "ack-001-2",
+        "paqueteId": "pkg-001-2",
+        "sensorId": "sensor-001",
+        "fecha_hora_acuse": "2025-09-26T11:24:20.320Z",
+        "estado": "recibido",
+        "mensaje": "Paquete confirmado en broker demo."
+      },
+      {
+        "id": "ack-001-3",
+        "paqueteId": "pkg-001-3",
+        "sensorId": "sensor-001",
+        "fecha_hora_acuse": "2025-09-26T11:24:10.294Z",
+        "estado": "recibido",
+        "mensaje": "Paquete confirmado en broker demo."
+      }
+    ],
+    "simulacionActiva": false
+  },
+  {
+    "id": "sensor-002",
+    "nombre": "Medidor Eléctrico Planta SX",
+    "tipo": "electricidad",
+    "division": "Chuquicamata",
+    "protocolo": "HTTP",
+    "credenciales": {
+      "endpoint": "https://demo.codelco.cl/api/medidores/sx",
+      "secreto": "token-demo-sx"
+    },
+    "frecuenciaSegundos": 60,
+    "descripcion": "Recibe paquete JSON con energía consumida cada minuto.",
+    "estado": "operativo",
+    "ultimaTransmision": "2025-09-26T10:59:00.000Z",
+    "historialTransmisiones": [
+      {
+        "id": "pkg-002-1",
+        "timestamp": "2025-09-26T10:59:00.000Z",
+        "payload": {
+          "energia_kwh": 1280.5,
+          "factor_potencia": 0.93
+        },
+        "protocolo": "HTTP"
+      },
+      {
+        "id": "pkg-002-2",
+        "timestamp": "2025-09-26T10:58:00.000Z",
+        "payload": {
+          "energia_kwh": 1268.9,
+          "factor_potencia": 0.92
+        },
+        "protocolo": "HTTP"
+      },
+      {
+        "id": "pkg-002-3",
+        "timestamp": "2025-09-26T10:57:00.000Z",
+        "payload": {
+          "energia_kwh": 1275.2,
+          "factor_potencia": 0.94
+        },
+        "protocolo": "HTTP"
+      }
+    ],
+    "acuses": [
+      {
+        "id": "ack-002-1",
+        "paqueteId": "pkg-002-1",
+        "sensorId": "sensor-002",
+        "fecha_hora_acuse": "2025-09-26T10:59:00.150Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde API demo."
+      },
+      {
+        "id": "ack-002-2",
+        "paqueteId": "pkg-002-2",
+        "sensorId": "sensor-002",
+        "fecha_hora_acuse": "2025-09-26T10:58:00.180Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde API demo."
+      },
+      {
+        "id": "ack-002-3",
+        "paqueteId": "pkg-002-3",
+        "sensorId": "sensor-002",
+        "fecha_hora_acuse": "2025-09-26T10:57:00.166Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde API demo."
+      }
+    ],
+    "simulacionActiva": false
+  },
+  {
+    "id": "sensor-003",
+    "nombre": "Temperatura Horno Flash",
+    "tipo": "temperatura",
+    "division": "División Andina",
+    "protocolo": "MQTT",
+    "credenciales": {
+      "topic": "codelco/hornos/flash/temp",
+      "secreto": null
+    },
+    "frecuenciaSegundos": 30,
+    "descripcion": "Sensor de temperatura interna del horno flash.",
+    "estado": "operativo",
+    "ultimaTransmision": "2025-09-26T11:15:30.000Z",
+    "historialTransmisiones": [
+      {
+        "id": "pkg-003-1",
+        "timestamp": "2025-09-26T11:15:30.000Z",
+        "payload": {
+          "temperatura_c": 1185.6,
+          "alarma": false
+        },
+        "protocolo": "MQTT"
+      },
+      {
+        "id": "pkg-003-2",
+        "timestamp": "2025-09-26T11:15:00.000Z",
+        "payload": {
+          "temperatura_c": 1186.2,
+          "alarma": false
+        },
+        "protocolo": "MQTT"
+      },
+      {
+        "id": "pkg-003-3",
+        "timestamp": "2025-09-26T11:14:30.000Z",
+        "payload": {
+          "temperatura_c": 1187.1,
+          "alarma": false
+        },
+        "protocolo": "MQTT"
+      }
+    ],
+    "acuses": [
+      {
+        "id": "ack-003-1",
+        "paqueteId": "pkg-003-1",
+        "sensorId": "sensor-003",
+        "fecha_hora_acuse": "2025-09-26T11:15:30.120Z",
+        "estado": "recibido",
+        "mensaje": "Paquete procesado por listener demo."
+      },
+      {
+        "id": "ack-003-2",
+        "paqueteId": "pkg-003-2",
+        "sensorId": "sensor-003",
+        "fecha_hora_acuse": "2025-09-26T11:15:00.118Z",
+        "estado": "recibido",
+        "mensaje": "Paquete procesado por listener demo."
+      },
+      {
+        "id": "ack-003-3",
+        "paqueteId": "pkg-003-3",
+        "sensorId": "sensor-003",
+        "fecha_hora_acuse": "2025-09-26T11:14:30.119Z",
+        "estado": "recibido",
+        "mensaje": "Paquete procesado por listener demo."
+      }
+    ],
+    "simulacionActiva": false
+  },
+  {
+    "id": "sensor-004",
+    "nombre": "Caudal Agua Recirculada",
+    "tipo": "flujo",
+    "division": "Radomiro Tomic",
+    "protocolo": "HTTP",
+    "credenciales": {
+      "endpoint": "https://demo.codelco.cl/api/flujo/recirculada",
+      "secreto": "token-agua-rt"
+    },
+    "frecuenciaSegundos": 45,
+    "descripcion": "Mide caudal instantáneo de agua recirculada en pilas de lixiviación.",
+    "estado": "operativo",
+    "ultimaTransmision": "2025-09-26T11:10:45.000Z",
+    "historialTransmisiones": [
+      {
+        "id": "pkg-004-1",
+        "timestamp": "2025-09-26T11:10:45.000Z",
+        "payload": {
+          "caudal_m3_h": 425.5,
+          "presion_bar": 3.4
+        },
+        "protocolo": "HTTP"
+      },
+      {
+        "id": "pkg-004-2",
+        "timestamp": "2025-09-26T11:10:00.000Z",
+        "payload": {
+          "caudal_m3_h": 422.1,
+          "presion_bar": 3.3
+        },
+        "protocolo": "HTTP"
+      },
+      {
+        "id": "pkg-004-3",
+        "timestamp": "2025-09-26T11:09:15.000Z",
+        "payload": {
+          "caudal_m3_h": 427.8,
+          "presion_bar": 3.5
+        },
+        "protocolo": "HTTP"
+      }
+    ],
+    "acuses": [
+      {
+        "id": "ack-004-1",
+        "paqueteId": "pkg-004-1",
+        "sensorId": "sensor-004",
+        "fecha_hora_acuse": "2025-09-26T11:10:45.210Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde endpoint simulado."
+      },
+      {
+        "id": "ack-004-2",
+        "paqueteId": "pkg-004-2",
+        "sensorId": "sensor-004",
+        "fecha_hora_acuse": "2025-09-26T11:10:00.205Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde endpoint simulado."
+      },
+      {
+        "id": "ack-004-3",
+        "paqueteId": "pkg-004-3",
+        "sensorId": "sensor-004",
+        "fecha_hora_acuse": "2025-09-26T11:09:15.204Z",
+        "estado": "recibido",
+        "mensaje": "Respuesta 200 desde endpoint simulado."
+      }
+    ],
+    "simulacionActiva": false
+  }
+]
