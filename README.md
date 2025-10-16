@@ -15,6 +15,7 @@
 - ✅ **Filtrar por división** y año objetivo
 - ✅ **Exportar a CSV**
 - ✅ **Diseño responsive** y accesible
+- ✅ **Cadena de registros demostrativa** con bloques enlazados y verificación de integridad
 
 > **Nota**: Proyecto académico con datos simulados, no es oficial de ninguna empresa.
 
@@ -127,6 +128,31 @@ npm run dev
 
 > ℹ️ Todo el comportamiento estadístico y de auditoría es demostrativo y se ejecuta en el navegador utilizando `localStorage`. Los datos de ejemplo se definen en `data/lecturas-ejemplo.json`.
 
+### 7. Módulo demostrativo de cadena de registros (blockchain simulado)
+1. Desde el encabezado (con un usuario de rol `auditor` o `control-interno`) abre **“Cadena de registros (demo)”** o visita `http://localhost:3000/cadena-registros`.
+2. Revisa el banner introductorio y la lista de bloques precargados proveniente de `data/cadena-ejemplo.json`. Cada tarjeta muestra la huella del bloque, la huella padre y la relación visual con el bloque anterior (bloque génesis incluído).
+3. En el panel izquierdo completa **“Confirmar registro (demo)”** con un identificador, contenido (texto o JSON), usuario y motivo opcional. Haz clic en **“Confirmar registro”** para generar un bloque demostrativo.
+4. Observa la tarjeta emergente con los datos del bloque creado, la huella generada y el enlace a la huella padre. Automáticamente se descarga `bloque_<index>.json` con la evidencia.
+5. Utiliza el formulario **“Consulta por identificador”** para buscar un bloque específico. Se simula el endpoint `GET /cadena/registro/:id` devolviendo huella y metadatos.
+6. Haz clic en **“Ver detalle y verificar integridad”** para abrir el modal: podrás visualizar la cadena completa y pulsar **“Verificar integridad”**. Edita el contenido temporalmente y vuelve a verificar para demostrar cómo se detecta una manipulación.
+7. En la sección **“Exportaciones demo”** presiona **“Exportar cadena y evidencia”** para descargar:
+   - `cadena_demo_<timestamp>.csv`
+   - `reporte_cadena_demo_<timestamp>.pdf`
+   - `prueba_firma_cadena_demo_<timestamp>.json` (huella global concatenada + sello demostrativo)
+8. Recuerda que todo el flujo es **100% demostrativo**: la cadena vive en `localStorage`, las huellas se calculan con `crypto.subtle.digest` en el navegador y no existe una red blockchain real detrás.
+
+### 8. Vista demostrativa de verificación de integridad
+
+1. Inicia la aplicación (`npm install` y `npm run dev`) y navega al menú **“Verificación (demo)”** o visita `http://localhost:3000/verificacion`.
+2. Desde el panel izquierdo busca o selecciona el registro `registro_id = META-EX-001` (o cualquiera de los bloques mostrados) y pulsa **“Verificar”**. El sistema recalcula la huella SHA-256 y muestra el resultado en la tarjeta principal.
+3. Comprueba que la tarjeta **ResultadoVerificacion** muestre el estado **VÁLIDO** en verde, con la huella almacenada y recalculada truncadas, además del tiempo de verificación (por ejemplo 45 ms).
+4. En la sección de herramientas presiona **“Simular manipulación”**. Esto altera temporalmente el contenido en memoria y vuelve a ejecutar la verificación, mostrando el estado **INVÁLIDO** y habilitando el panel de divergencias.
+5. Haz clic en **“Ver detalles de divergencia”** para abrir el panel que lista campo por campo las diferencias entre el contenido esperado y el manipulado. Cada valor alterado se destaca en rojo y se muestra un resumen de divergencia.
+6. Activa el switch **“Forzar retardo demostrativo”** y repite la verificación para simular un tiempo de respuesta superior a 1 segundo. La tarjeta mostrará un badge rojo indicando “Tiempo de verificación excede 1 segundo (tiempo X ms)”.
+7. Pulsa **“Descargar informe (JSON)”** o **“Descargar informe (PDF)”** para guardar la evidencia de la verificación (registro, fecha, resultado, huellas y divergencias). Los archivos se generan en la carpeta de descargas del navegador.
+
+> ℹ️ Todos los escenarios de prueba se alimentan con `data/casos-verificacion-ejemplo.json`, que contiene seis registros de ejemplo (tamaños pequeños y medianos) con manipulaciones sugeridas para la demo.
+
 ## 🧪 Validaciones Implementadas
 
 El formulario valida:
@@ -162,6 +188,8 @@ El sistema incluye 3 metas simuladas:
 1. **El Teniente - Molienda**: Reducción 25% (15% progreso)
 2. **Radomiro Tomic - Chancado**: Optimización energética (8% progreso)
 3. **Ministro Hales - Fundición**: Reducción 40% (22% progreso)
+
+Adicionalmente, el módulo blockchain demo carga 9 bloques iniciales (incluyendo el caso `META-EX-001`) desde `data/cadena-ejemplo.json`, y la vista de verificación toma escenarios desde `data/casos-verificacion-ejemplo.json`.
 
 ## 🔧 Comandos Útiles
 

@@ -1,0 +1,119 @@
+[
+  {
+    "registro_id": "META-EX-001",
+    "descripcion": "Meta demostrativa externa para auditorías",
+    "contenido_original": {
+      "meta": "Meta demostrativa externa",
+      "division": "Ventanas",
+      "valor_base": 1500,
+      "unidad": "tCO2"
+    },
+    "manipulacion_demo": {
+      "descripcion": "Reducción artificial del valor base",
+      "contenido_manipulado": {
+        "meta": "Meta demostrativa externa",
+        "division": "Ventanas",
+        "valor_base": 1200,
+        "unidad": "tCO2"
+      }
+    }
+  },
+  {
+    "registro_id": "META-2025-ALC2-01",
+    "descripcion": "Meta corporativa alcance 2 - reducción de inventario",
+    "contenido_original": {
+      "meta": "Reducción 5% inventario alcance 2",
+      "division": "Chuquicamata",
+      "valor_base": 9800
+    },
+    "manipulacion_demo": {
+      "descripcion": "Ajuste no autorizado del valor base",
+      "contenido_manipulado": {
+        "meta": "Reducción 5% inventario alcance 2",
+        "division": "Chuquicamata",
+        "valor_base": 9500
+      }
+    }
+  },
+  {
+    "registro_id": "SENSOR-CO2-VAL-07",
+    "descripcion": "Lectura sensor CO2 en ventilación",
+    "contenido_original": {
+      "sensor": "CO2-VAL-07",
+      "lectura": 362,
+      "unidad": "ppm"
+    },
+    "manipulacion_demo": {
+      "descripcion": "Alteración de lectura para ocultar pico",
+      "contenido_manipulado": {
+        "sensor": "CO2-VAL-07",
+        "lectura": 240,
+        "unidad": "ppm"
+      }
+    }
+  },
+  {
+    "registro_id": "REP-ANUAL-2024",
+    "descripcion": "Reporte anual de emisiones 2024",
+    "contenido_original": {
+      "titulo": "Reporte anual de emisiones",
+      "version": "1.0"
+    },
+    "manipulacion_demo": {
+      "descripcion": "Cambio sutil de versión sin aprobar",
+      "contenido_manipulado": {
+        "titulo": "Reporte anual de emisiones",
+        "version": "1.1"
+      }
+    }
+  },
+  {
+    "registro_id": "META-2025-ALC3-05",
+    "descripcion": "Meta alcance 3 - reemplazo combustibles",
+    "contenido_original": {
+      "meta": "Reemplazo de combustibles alcance 3",
+      "progreso_inicial": 12
+    },
+    "manipulacion_demo": {
+      "descripcion": "Actualización no documentada del progreso inicial",
+      "contenido_manipulado": {
+        "meta": "Reemplazo de combustibles alcance 3",
+        "progreso_inicial": 22
+      }
+    }
+  },
+  {
+    "registro_id": "SENSOR-AGUA-PLT-02",
+    "descripcion": "Sensor de caudal de agua en planta",
+    "contenido_original": {
+      "sensor": "H2O-PLT-02",
+      "caudal": 215,
+      "unidad": "m3/h"
+    },
+    "manipulacion_demo": {
+      "descripcion": "Redondeo malicioso del caudal",
+      "contenido_manipulado": {
+        "sensor": "H2O-PLT-02",
+        "caudal": 200,
+        "unidad": "m3/h"
+      }
+    }
+  },
+  {
+    "registro_id": "META-2025-ALC1-03",
+    "descripcion": "Optimización energética alcance 1",
+    "contenido_original": {
+      "meta": "Optimización energética alcance 1",
+      "division": "Andina",
+      "meta_2025": 18
+    },
+    "manipulacion_demo": {
+      "descripcion": "Elevación ficticia de la meta 2025",
+      "contenido_manipulado": {
+        "meta": "Optimización energética alcance 1",
+        "division": "Andina",
+        "meta_2025": 28
+      }
+    }
+  }
+]

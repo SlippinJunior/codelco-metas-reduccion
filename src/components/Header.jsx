@@ -16,12 +16,20 @@ function Header() {
       <div className="flex items-center space-x-4">
         <Link to="/dashboard" className="font-semibold text-white">Codelco - Metas</Link>
         {user && (['control-interno','auditor'].includes(user.rol)) && (
-          <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoría</Link>
+          <>
+            <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoría</Link>
+            <Link to="/cadena-registros" className="text-sm text-white/90 hover:text-white">
+              Cadena de registros (demo)
+            </Link>
+            <Link to="/verificacion" className="text-sm text-white/90 hover:text-white">
+              Verificación (demo)
+            </Link>
+          </>
         )}
         <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
         <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
         <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>
-  <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalías</Link>
+        <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalías</Link>
       </div>
       <div>
         {user ? (

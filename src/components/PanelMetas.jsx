@@ -31,6 +31,7 @@ const PanelMetas = ({ actualizarContador }) => {
   // Estado de vista
   const [vistaActual, setVistaActual] = useState('todas'); // 'todas', 'division'
   const [mensaje, setMensaje] = useState({ tipo: '', contenido: '' });
+  const [esAuditorDemo, setEsAuditorDemo] = useState(false);
 
   // Colores para gráficos
   const COLORES_GRAFICOS = ['#1e3a8a', '#374151', '#ea580c', '#059669', '#7c3aed', '#dc2626'];
@@ -189,6 +190,20 @@ const PanelMetas = ({ actualizarContador }) => {
   }, []);
 
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem('currentUser');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.rol && ['auditor', 'control-interno'].includes(parsed.rol)) {
+          setEsAuditorDemo(true);
+        }
+      }
+    } catch (err) {
+      console.warn('No fue posible leer el usuario actual para banner de cadena demo:', err);
+    }
+  }, []);
+
+  useEffect(() => {
     aplicarFiltros();
   }, [filtros, metas]);
 
@@ -231,6 +246,35 @@ const PanelMetas = ({ actualizarContador }) => {
 
   return (
     <div className="space-y-8">
+      {esAuditorDemo && (
+        <section className="card border border-dashed border-codelco-accent bg-white relative overflow-hidden">
+          <div className="absolute inset-y-0 left-0 w-1 bg-codelco-accent/70" aria-hidden="true"></div>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-codelco-accent font-semibold">Acceso exclusivo de demostración</p>
+              <h2 className="text-2xl font-semibold text-codelco-dark mt-2">
+                Cadena de registros validada en blockchain (demo)
+              </h2>
+              <p className="text-sm text-codelco-secondary mt-2 max-w-2xl">
+                Explora el módulo demostrativo que simula cómo se confirma cada registro con huellas criptográficas y referencia a bloques previos, pensado para auditorías y control interno.
+              </p>
+            </div>
+            <div className="flex flex-col items-start lg:items-end gap-3">
+              <span className="inline-flex items-center bg-codelco-primary/10 text-codelco-primary text-xs font-semibold px-3 py-1 rounded-full">
+                Demo académica - no vinculante
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate('/cadena-registros')}
+                className="btn-accent"
+              >
+                Abrir cadena de registros
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Encabezado con estadísticas */}
       <div className="card">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6">

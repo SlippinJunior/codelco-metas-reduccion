@@ -6,6 +6,8 @@ import VistaProgreso from './views/VistaProgreso';
 import VistaAuditoria from './views/VistaAuditoria';
 import VistaSensores from './views/VistaSensores';
 import VistaAnomalias from './views/VistaAnomalias';
+import VistaCadenaRegistros from './views/VistaCadenaRegistros';
+import VistaVerificacion from './views/VistaVerificacion';
 import Login from './pages/Login';
 import Header from './components/Header';
 import ExportarReportes from './components/ExportarReportes';
@@ -41,6 +43,12 @@ function App() {
             <Route path="/progreso" element={<VistaProgreso />} />
             {/* Panel de Auditoría - acceso simulado por rol */}
             <Route path="/auditoria" element={<VistaAuditoria />} />
+
+            {/* Módulo demostrativo de cadena de registros con blockchain */}
+            <Route path="/cadena-registros" element={<VistaCadenaRegistros />} />
+
+            {/* Verificación de integridad demostrativa */}
+            <Route path="/verificacion" element={<VistaVerificacion />} />
 
             {/* Módulo demostrativo de sensores */}
             <Route path="/sensores" element={<VistaSensores />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import servicioAuditoria from '../services/servicioAuditoria';
 import FiltroAuditoria from '../components/FiltroAuditoria';
 import TablaEventos from '../components/TablaEventos';
@@ -148,6 +148,13 @@ function VistaAuditoria() {
               <p className="text-sm text-gray-600 mt-2 max-w-xl">
                 Monitorea las acciones críticas registradas en el sistema. Utiliza los filtros avanzados para identificar rápidamente actividades relevantes y profundiza en el detalle de cada evento.
               </p>
+              <div className="mt-3 text-xs text-codelco-secondary">
+                ¿Necesitas evidencia criptográfica? Visita la{' '}
+                <Link to="/verificacion" className="text-codelco-primary hover:underline font-medium">
+                  vista de verificación demostrativa
+                </Link>
+                .
+              </div>
             </div>
             <div className="bg-white rounded-xl border border-codelco-primary/30 px-5 py-4 shadow-sm text-sm text-gray-600">
               <div className="font-semibold text-codelco-primary">Resumen actual</div>
