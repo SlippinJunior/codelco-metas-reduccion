@@ -3,6 +3,7 @@ import servicioAlertas, { DEFAULT_ALERTAS } from '../services/servicioAlertas';
 import PoliticaEvaluacion from '../components/PoliticaEvaluacion';
 import SimulacionAlertas from '../components/SimulacionAlertas';
 import Tooltip from '../components/Tooltip';
+import servicioNotificaciones from '../services/servicioNotificaciones';
 
 function Alertas() {
   const [config, setConfig] = useState(servicioAlertas.obtenerConfig());
@@ -11,11 +12,32 @@ function Alertas() {
   const [guardando, setGuardando] = useState(false);
   const [reglasEdit, setReglasEdit] = useState(config.reglas || {});
   const [histFromService, setHistFromService] = useState([]);
+  // Notificaciones multicanal (R11)
+  const [notifSettings, setNotifSettings] = useState(servicioNotificaciones.getSettings());
+  const [centro, setCentro] = useState([]);
+  const [outbox, setOutbox] = useState([]);
+  const [emailLog, setEmailLog] = useState([]);
+  const currentUser = (() => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}'); } catch { return {}; } })();
+  const usuarioActual = currentUser?.usuario || 'ops';
+  const emailActual = currentUser?.email || 'ops@example.com';
 
   useEffect(() => {
     setConfig(servicioAlertas.obtenerConfig());
     setReglasEdit(servicioAlertas.obtenerConfig().reglas || {});
     setHistFromService(servicioAlertas.obtenerHistorial());
+    // R11: iniciar worker y refrescar vistas
+    try { servicioNotificaciones.startWorker(); } catch {}
+    const tick = setInterval(() => {
+      try {
+        setOutbox(servicioNotificaciones.listarOutbox());
+        setEmailLog(servicioNotificaciones.listarEmailLog());
+        setCentro(servicioNotificaciones.listarCentro(usuarioActual));
+      } catch {}
+    }, 1500);
+    setOutbox(servicioNotificaciones.listarOutbox());
+    setEmailLog(servicioNotificaciones.listarEmailLog());
+    setCentro(servicioNotificaciones.listarCentro(usuarioActual));
+    return () => clearInterval(tick);
   }, []);
 
   const handleGuardar = async () => {
@@ -202,6 +224,95 @@ function Alertas() {
                 setHistFromService(servicioAlertas.listarHistorial());
               } else alert('Error registrando alertas');
             }}>Crear alertas demo</button>
+          </div>
+        </section>
+
+        {/* R11: Notificaciones Multicanal */}
+        <section className="mb-6 card p-4">
+          <h2 className="font-semibold mb-2">Notificaciones multicanal (R11)</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div className="font-medium">Plantilla de correo</div>
+              <label className="block text-sm">Asunto (usa {{titulo}}, {{severidad}})
+                <input
+                  className="w-full rounded-lg border px-3 py-2"
+                  value={notifSettings.email.asuntoTemplate}
+                  onChange={e=> setNotifSettings(s=> ({...s, email:{...s.email, asuntoTemplate: e.target.value}}))}
+                />
+              </label>
+              <label className="block text-sm">Cuerpo (placeholders: {{usuario}}, {{titulo}}, {{detalle}}, {{severidad}}, {{timestamp}}, {{link}})
+                <textarea
+                  rows={6}
+                  className="w-full rounded-lg border px-3 py-2 font-mono text-sm"
+                  value={notifSettings.email.cuerpoTemplate}
+                  onChange={e=> setNotifSettings(s=> ({...s, email:{...s.email, cuerpoTemplate: e.target.value}}))}
+                />
+              </label>
+              <div className="flex items-center gap-3">
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!!notifSettings.canales?.web} onChange={e=> setNotifSettings(s=> ({...s, canales:{...s.canales, web: e.target.checked}}))} /> Web/App
+                </label>
+                <label className="inline-flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={!!notifSettings.canales?.email} onChange={e=> setNotifSettings(s=> ({...s, canales:{...s.canales, email: e.target.checked}}))} /> Correo
+                </label>
+              </div>
+              <div className="flex gap-2">
+                <button className="btn-primary" onClick={()=>{
+                  const r = servicioNotificaciones.saveSettings(notifSettings);
+                  if (r?.success) alert('Plantilla/ajustes guardados');
+                }}>Guardar plantilla</button>
+                <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={()=>{
+                  const alerta = (simulacion && simulacion[0]) || {
+                    id: `demo-${Date.now()}`,
+                    titulo: 'Emisiones SO2 por sobre umbral',
+                    detalle: 'Línea 3 reportó 22% sobre el límite en la última hora',
+                    severidad: 'alta',
+                    timestamp: new Date().toISOString()
+                  };
+                  const destinatarios = [{ usuario: usuarioActual, email: emailActual }];
+                  const res = servicioNotificaciones.enviarAlertaMulticanal(alerta, destinatarios);
+                  setCentro(servicioNotificaciones.listarCentro(usuarioActual));
+                  setOutbox(servicioNotificaciones.listarOutbox());
+                  if (res?.success) alert('Alerta enviada (web) y encolada para correo');
+                }}>Probar envío</button>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="font-medium">Bandeja (Web/App)</div>
+              <ul className="space-y-2 max-h-64 overflow-auto">
+                {(centro||[]).map(n=> (
+                  <li key={n.id} className="border rounded p-2 bg-white flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold">{n.titulo}</div>
+                      <div className="text-xs text-gray-600">Severidad: {n.severidad} · {new Date(n.creadoEn).toLocaleString()}</div>
+                      {n.leidoEn && <div className="text-xs text-green-700">Leído: {new Date(n.leidoEn).toLocaleString()}</div>}
+                      {n.cerrado && <div className="text-xs text-blue-700">Cerrado por {n.cerrado.usuario} · {new Date(n.cerrado.fecha).toLocaleString()}</div>}
+                    </div>
+                    <div className="flex gap-2">
+                      {!n.leidoEn && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.marcarLeido(n.id, usuarioActual); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Marcar leído</button>}
+                      {!n.cerrado && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.cerrarNotificacion(n.id, usuarioActual, 'Atendido'); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Cerrar</button>}
+                    </div>
+                  </li>
+                ))}
+                {(!centro || centro.length===0) && <li className="text-sm text-gray-500">Sin notificaciones</li>}
+              </ul>
+              <div className="font-medium mt-4">Envíos de correo (cola)</div>
+              <ul className="space-y-2 max-h-64 overflow-auto">
+                {(outbox||[]).map(o=> (
+                  <li key={o.id} className="border rounded p-2 bg-white flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold">{o.subject}</div>
+                      <div className="text-xs text-gray-600">Para: {o.to} · Estado: {o.status} · Intentos: {o.attempts}/{o.maxAttempts}</div>
+                      {o.lastError && <div className="text-xs text-red-600">Último error: {o.lastError}</div>}
+                    </div>
+                    <div className="flex gap-2">
+                      {o.status !== 'sent' && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.forceRetry(o.id); setOutbox(servicioNotificaciones.listarOutbox()); }}>Reintentar</button>}
+                    </div>
+                  </li>
+                ))}
+                {(!outbox || outbox.length===0) && <li className="text-sm text-gray-500">Sin elementos en cola</li>}
+              </ul>
+            </div>
           </div>
         </section>
 
