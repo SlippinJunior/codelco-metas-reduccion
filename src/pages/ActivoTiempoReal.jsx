@@ -74,7 +74,7 @@ export default function ActivoTiempoReal() {
   const iconEvento  = (t) => t.includes('Inicio') ? '▶' : t.includes('Cambio') ? '⚙' : '🧰';
 
   return (
-    <div className="min-h-screen p-6 dark:bg-slate-900 dark:text-slate-100">
+  <div className="min-h-screen p-6">
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -103,7 +103,7 @@ export default function ActivoTiempoReal() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          <div className="lg:col-span-2 rounded-xl border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 shadow-sm">
+          <div className="lg:col-span-2 rounded-xl border bg-white p-4 shadow-sm">
             <div className="h-64">
               {loading ? (
                 <div className="flex items-center justify-center h-full">Cargando lecturas...</div>
@@ -133,7 +133,7 @@ export default function ActivoTiempoReal() {
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 shadow-sm">
+          <div className="rounded-xl border bg-white p-4 shadow-sm">
             <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
               {smallKPI({ label: 'Promedio (60m)', value: promedio })}
               {smallKPI({ label: 'Máximo (60m)', value: maximo })}
@@ -147,13 +147,13 @@ export default function ActivoTiempoReal() {
 
         <div className="mt-3 text-sm">
           <div className="font-medium mb-1">Últimos eventos (60 min)</div>
-          <ul className="grid md:grid-cols-3 gap-2">
+            <ul className="grid md:grid-cols-3 gap-2">
             { (eventos || []).slice(-6).map((e, i) => (
-              <li key={i} className="rounded border bg-white dark:bg-slate-800 p-2 flex items-center gap-2">
+              <li key={i} className="rounded border bg-white p-2 flex items-center gap-2">
                 <span className="text-lg" style={{color: colorEvento(e.tipo)}}>{iconEvento(e.tipo)}</span>
                 <div>
                   <div className="font-medium">{e.tipo}</div>
-                  <div className="text-xs text-gray-500 dark:text-slate-300">{new Date(e.timestamp).toLocaleTimeString()}</div>
+                  <div className="text-xs text-gray-500">{new Date(e.timestamp).toLocaleTimeString()}</div>
                 </div>
               </li>
             )) }
