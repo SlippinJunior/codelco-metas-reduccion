@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Header() {
   const nav = useNavigate();
   const cu = localStorage.getItem('currentUser');
   const user = cu ? JSON.parse(cu) : null;
+
+  // theme handling
+  const applyTheme = (t) => {
+    try { document.documentElement.classList.toggle('dark', t === 'dark'); } catch (e) {}
+  };
+  const setTheme = (t) => { localStorage.theme = t; applyTheme(t); };
+  // ensure initial theme
+  useEffect(() => { applyTheme(localStorage.theme || 'light'); }, []);
 
   const logout = () => {
     localStorage.removeItem('currentUser');
@@ -41,6 +49,13 @@ function Header() {
       <div>
         {user ? (
           <div className="flex items-center space-x-3">
+            <button
+              className="rounded-lg border px-3 py-1 text-sm mr-2 bg-white/10 text-white"
+              onClick={() => setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark')}
+              title="Alternar modo oscuro"
+            >
+              🌙/☀️
+            </button>
             <div className="text-sm text-white">{user.usuario} <span className="text-xs text-white/80">{user.rol}</span></div>
             <button onClick={logout} className="bg-white/10 text-white px-3 py-1 rounded-md hover:bg-white/20">Salir</button>
           </div>

@@ -37,9 +37,19 @@ export function getEventosUltimaHora(activoId) {
   const eventoCfg = (demo.eventosDemo || {})[activoId] || [];
   const eventos = eventoCfg.map(e => ({
     timestamp: now + (e.tsMin * 60 * 1000),
+    ts: now + (e.tsMin * 60 * 1000), // legacy alias
     tipo: e.tipo
   }));
   return Promise.resolve(eventos);
+}
+
+export function getUmbralActivo(id) {
+  const map = {
+    'horno-flash-1': 3.8,
+    'convertidor-ps-2': 4.2,
+    'horno-anodo-1': 3.5
+  };
+  return map[id] ?? 3.8;
 }
 
 export function toSerieRecharts(lecturas) {

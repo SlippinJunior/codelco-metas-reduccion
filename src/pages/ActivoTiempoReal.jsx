@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import servicioTR from '../services/servicioTiempoReal';
+import servicioTR, { getUmbralActivo } from '../services/servicioTiempoReal';
 import { LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, CartesianGrid, ReferenceLine, ResponsiveContainer } from 'recharts';
 
 function smallKPI({ label, value }) {
@@ -19,6 +19,7 @@ export default function ActivoTiempoReal() {
   const [eventos, setEventos] = useState([]);
   const [activos, setActivos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastRefreshAt, setLastRefreshAt] = useState(Date.now());
   const timerRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function ActivoTiempoReal() {
       const ev = await servicioTR.getEventosUltimaHora(id);
       setSerie(lect || []);
       setEventos(ev || []);
+      setLastRefreshAt(Date.now());
     } catch (e) {
       setSerie([]);
       setEventos([]);
@@ -56,8 +58,23 @@ export default function ActivoTiempoReal() {
   const maximo = valores.length ? Math.max(...valores).toFixed(3) : 'N/A';
   const ultimo = valores.length ? valores[valores.length-1].toFixed(3) : 'N/A';
 
+  const umbral = getUmbralActivo(id);
+  const lastValue = valores.length ? valores[valores.length-1] : 0;
+  const ratio = umbral > 0 ? (lastValue / umbral) : 0;
+  let estado = {label:'Normal', cls:'bg-green-100 text-green-800'};
+  if (ratio >= 1) estado = {label:'Alto (sobre umbral)', cls:'bg-red-100 text-red-800'};
+  else if (ratio >= 0.8) estado = {label:'Cercano al umbral', cls:'bg-yellow-100 text-yellow-800'};
+
+  const ageSec = Math.floor((Date.now() - lastRefreshAt)/1000);
+  let net = {label:'Conectado', dot:'bg-green-500'};
+  if (ageSec > 180) net = {label:'Sin conexión', dot:'bg-red-500'};
+  else if (ageSec > 90) net = {label:'Retraso leve', dot:'bg-yellow-500'};
+
+  const colorEvento = (t) => t.includes('Inicio') ? '#16a34a' : t.includes('Cambio') ? '#2563eb' : '#ea580c';
+  const iconEvento  = (t) => t.includes('Inicio') ? '▶' : t.includes('Cambio') ? '⚙' : '🧰';
+
   return (
-    <div className="min-h-screen p-6 bg-codelco-light">
+    <div className="min-h-screen p-6 dark:bg-slate-900 dark:text-slate-100">
       <div className="container mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -67,6 +84,14 @@ export default function ActivoTiempoReal() {
           <div className="flex items-center gap-3">
             <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">SIMULADO</span>
             <span className="text-xs text-gray-600">Auto-refresh: 60s</span>
+            <span className={`px-2 py-1 rounded text-xs ${estado.cls}`} title={`Umbral: ${umbral.toFixed(2)} tCO₂e/hr — Comparado contra umbral del activo (tCO₂e/hr)`}>
+              {estado.label}
+            </span>
+            <div className="flex items-center gap-2 text-sm">
+              <span className={`inline-block w-2.5 h-2.5 rounded-full ${net.dot}`} />
+              <span className="text-gray-600">{net.label}</span>
+              <span className="text-gray-400">· actualizado {new Date(lastRefreshAt).toLocaleTimeString()}</span>
+            </div>
           </div>
         </div>
 
@@ -78,7 +103,7 @@ export default function ActivoTiempoReal() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          <div className="lg:col-span-2 rounded-xl border bg-white p-4 shadow-sm">
+          <div className="lg:col-span-2 rounded-xl border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 shadow-sm">
             <div className="h-64">
               {loading ? (
                 <div className="flex items-center justify-center h-full">Cargando lecturas...</div>
@@ -92,16 +117,23 @@ export default function ActivoTiempoReal() {
                     <YAxis dataKey="valor" tick={{fontSize:10}} aria-label="tCO2e/hr" />
                     <RTooltip formatter={(v)=>[v,'tCO₂e/hr']} labelFormatter={(l)=>`Hora: ${l}`} />
                     <Line type="monotone" dataKey="valor" stroke="#2563eb" dot={false} strokeWidth={2} name="tCO₂e/hr" />
-                    {eventos.map((ev, idx) => (
-                      <ReferenceLine key={idx} x={new Date(ev.timestamp).toLocaleTimeString()} stroke="red" label={ev.tipo} />
-                    ))}
+                    {eventos.map((ev, idx) => {
+                      const ts = new Date(ev.timestamp).toLocaleTimeString();
+                      const c = colorEvento(ev.tipo);
+                      return (
+                        <ReferenceLine key={idx} x={ts} stroke={c} strokeWidth={2}
+                          label={{ value: `${iconEvento(ev.tipo)} ${ev.tipo}`, position: 'top', fill: c }}
+                        />
+                      );
+                    })}
+                    <ReferenceLine y={umbral} stroke="#ef4444" strokeDasharray="4 4" label={{ value: `Umbral ${umbral.toFixed(2)}`, position: 'right', fill: '#ef4444' }} />
                   </LineChart>
                 </ResponsiveContainer>
               )}
             </div>
           </div>
 
-          <div className="rounded-xl border bg-white p-4 shadow-sm">
+          <div className="rounded-xl border bg-white dark:bg-slate-800 dark:border-slate-700 p-4 shadow-sm">
             <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
               {smallKPI({ label: 'Promedio (60m)', value: promedio })}
               {smallKPI({ label: 'Máximo (60m)', value: maximo })}
@@ -112,6 +144,21 @@ export default function ActivoTiempoReal() {
         </div>
 
         <div className="text-sm text-gray-600">Marcadores: <span title="Marcadores de eventos operativos (Inicio de ciclo, Mantención, Cambio de carga).">Eventos operativos superpuestos</span></div>
+
+        <div className="mt-3 text-sm">
+          <div className="font-medium mb-1">Últimos eventos (60 min)</div>
+          <ul className="grid md:grid-cols-3 gap-2">
+            { (eventos || []).slice(-6).map((e, i) => (
+              <li key={i} className="rounded border bg-white dark:bg-slate-800 p-2 flex items-center gap-2">
+                <span className="text-lg" style={{color: colorEvento(e.tipo)}}>{iconEvento(e.tipo)}</span>
+                <div>
+                  <div className="font-medium">{e.tipo}</div>
+                  <div className="text-xs text-gray-500 dark:text-slate-300">{new Date(e.timestamp).toLocaleTimeString()}</div>
+                </div>
+              </li>
+            )) }
+          </ul>
+        </div>
       </div>
     </div>
   );
