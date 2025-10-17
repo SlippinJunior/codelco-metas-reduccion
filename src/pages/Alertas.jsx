@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import servicioAlertas, { DEFAULT_ALERTAS } from '../services/servicioAlertas';
 import PoliticaEvaluacion from '../components/PoliticaEvaluacion';
 import SimulacionAlertas from '../components/SimulacionAlertas';
 import Tooltip from '../components/Tooltip';
 import servicioNotificaciones from '../services/servicioNotificaciones';
+
+const Placeholder = ({ name }) => (
+  <code className="bg-gray-100 px-1 py-0.5 rounded">{`{{${name}}}`}</code>
+);
 
 function Alertas() {
   const [config, setConfig] = useState(servicioAlertas.obtenerConfig());
@@ -13,11 +17,19 @@ function Alertas() {
   const [reglasEdit, setReglasEdit] = useState(config.reglas || {});
   const [histFromService, setHistFromService] = useState([]);
   // Notificaciones multicanal (R11)
-  const [notifSettings, setNotifSettings] = useState(servicioNotificaciones.getSettings());
+  const [notifSettings, setNotifSettings] = useState(() => servicioNotificaciones.getSettings());
   const [centro, setCentro] = useState([]);
   const [outbox, setOutbox] = useState([]);
   const [emailLog, setEmailLog] = useState([]);
-  const currentUser = (() => { try { return JSON.parse(localStorage.getItem('currentUser') || '{}'); } catch { return {}; } })();
+  const isBrowser = typeof window !== 'undefined';
+  const currentUser = useMemo(() => {
+    if (!isBrowser) return {};
+    try {
+      return JSON.parse(window.localStorage.getItem('currentUser') || '{}');
+    } catch {
+      return {};
+    }
+  }, [isBrowser]);
   const usuarioActual = currentUser?.usuario || 'ops';
   const emailActual = currentUser?.email || 'ops@example.com';
 
@@ -25,6 +37,7 @@ function Alertas() {
     setConfig(servicioAlertas.obtenerConfig());
     setReglasEdit(servicioAlertas.obtenerConfig().reglas || {});
     setHistFromService(servicioAlertas.obtenerHistorial());
+    if (!isBrowser) return undefined;
     // R11: iniciar worker y refrescar vistas
     try { servicioNotificaciones.startWorker(); } catch {}
     const tick = setInterval(() => {
@@ -37,8 +50,11 @@ function Alertas() {
     setOutbox(servicioNotificaciones.listarOutbox());
     setEmailLog(servicioNotificaciones.listarEmailLog());
     setCentro(servicioNotificaciones.listarCentro(usuarioActual));
-    return () => clearInterval(tick);
-  }, []);
+    return () => {
+      clearInterval(tick);
+      servicioNotificaciones.stopWorker();
+    };
+  }, [isBrowser, usuarioActual]);
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -233,14 +249,16 @@ function Alertas() {
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-3">
               <div className="font-medium">Plantilla de correo</div>
-              <label className="block text-sm">Asunto (usa {{titulo}}, {{severidad}})
+              <label className="block text-sm">
+                Asunto (usa <Placeholder name="titulo" />, <Placeholder name="severidad" />)
                 <input
                   className="w-full rounded-lg border px-3 py-2"
                   value={notifSettings.email.asuntoTemplate}
                   onChange={e=> setNotifSettings(s=> ({...s, email:{...s.email, asuntoTemplate: e.target.value}}))}
                 />
               </label>
-              <label className="block text-sm">Cuerpo (placeholders: {{usuario}}, {{titulo}}, {{detalle}}, {{severidad}}, {{timestamp}}, {{link}})
+              <label className="block text-sm">
+                Cuerpo (placeholders: <Placeholder name="usuario" />, <Placeholder name="titulo" />, <Placeholder name="detalle" />, <Placeholder name="severidad" />, <Placeholder name="timestamp" />, <Placeholder name="link" />)
                 <textarea
                   rows={6}
                   className="w-full rounded-lg border px-3 py-2 font-mono text-sm"
