@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
+  // Dark mode disabled to keep the UI with white backgrounds only
+  darkMode: false,
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
