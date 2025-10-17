@@ -7,6 +7,8 @@ import VistaAuditoria from './views/VistaAuditoria';
 import VistaSensores from './views/VistaSensores';
 import VistaAnomalias from './views/VistaAnomalias';
 import Alertas from './pages/Alertas';
+import ActivosTiempoReal from './pages/ActivosTiempoReal';
+import ActivoTiempoReal from './pages/ActivoTiempoReal';
 import VistaCadenaRegistros from './views/VistaCadenaRegistros';
 import VistaVerificacion from './views/VistaVerificacion';
 import Login from './pages/Login';
@@ -58,6 +60,9 @@ function App() {
             <Route path="/anomalias" element={<VistaAnomalias />} />
             {/* Administración de alertas (visible por rol) */}
             <Route path="/alertas" element={<Alertas />} />
+            {/* Operario / Fundición - Activos tiempo real (DEMO) */}
+            <Route path="/operario/activos" element={<ActivosTiempoReal />} />
+            <Route path="/operario/activo/:id" element={<ActivoTiempoReal />} />
 
             {/* Exportar reportes comparativos */}
             <Route path="/exportar-reportes" element={<ExportarReportes />} />

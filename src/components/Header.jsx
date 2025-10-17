@@ -26,6 +26,9 @@ function Header() {
             </Link>
           </>
         )}
+        {user && (['operario','fundicion_turno'].includes(user.rol)) && (
+          <Link to="/operario/activos" className="text-sm text-white/90 hover:text-white">Activos (Tiempo Real)</Link>
+        )}
         {/* Pestaña exclusiva para Jefe de Operaciones */}
         {user && user.rol === 'jefe-operaciones' && (
           <Link to="/alertas" className="text-sm text-white/90 hover:text-white">Alertas</Link>

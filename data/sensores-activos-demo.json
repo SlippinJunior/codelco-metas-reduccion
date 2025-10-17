@@ -1,0 +1,18 @@
+{
+  "activos": [
+    {"id":"horno-flash-1","nombre":"Horno Flash #1","division":"El Teniente","proceso":"Fundición"},
+    {"id":"convertidor-ps-2","nombre":"Convertidor Peirce-Smith #2","division":"El Teniente","proceso":"Fundición"},
+    {"id":"horno-anodo-1","nombre":"Horno Ánodos #1","division":"Chuquicamata","proceso":"Refinación"}
+  ],
+  "eventosDemo": {
+    "horno-flash-1": [
+      {"tsMin":-55,"tipo":"Inicio de ciclo"},
+      {"tsMin":-37,"tipo":"Cambio de carga"},
+      {"tsMin":-18,"tipo":"Mantención corta"}
+    ],
+    "convertidor-ps-2": [
+      {"tsMin":-42,"tipo":"Soplado alto"},
+      {"tsMin":-20,"tipo":"Pausa operativa"}
+    ]
+  }
+}

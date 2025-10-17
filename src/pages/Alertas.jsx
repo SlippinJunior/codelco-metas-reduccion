@@ -83,7 +83,7 @@ function Alertas() {
               <label className="block">Umbral <Tooltip>Valor límite en la misma unidad del indicador.</Tooltip>
                 <input placeholder="Umbral" type="number" className="w-full rounded-lg border px-3 py-2" id="form-umbral" value={config._formUmbral ?? ''} onChange={e=>setConfig({...config, _formUmbral: e.target.value === '' ? '' : Number(e.target.value)})} aria-label="Umbral" />
               </label>
-              <label className="block">Dirección <Tooltip>Condición de disparo: '>' excedencia, '&lt;' umbral inferior. Usa la unidad del indicador.</Tooltip>
+              <label className="block">Dirección <Tooltip>Condición de disparo: '' excedencia, '&lt;' umbral inferior. Usa la unidad del indicador.</Tooltip>
                 <select className="w-full rounded-lg border px-3 py-2" id="form-direccion" value={config._formDireccion || '>'} onChange={e=>setConfig({...config, _formDireccion: e.target.value})} aria-label="Dirección">
                   <option value=">">Mayor que (&gt;)</option>
                   <option value="<">Menor que (&lt;)</option>
