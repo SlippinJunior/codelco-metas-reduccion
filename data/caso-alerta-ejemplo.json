@@ -1,0 +1,44 @@
+[
+  {
+    "id": "caso-1-lectura-01",
+    "sensorId": "sensor-ops-01",
+    "division": "División El Teniente",
+    "timestamp": "2025-09-10T08:00:00.000Z",
+    "valor": 38.5,
+    "unidad": "L",
+    "tipo": "consumo_diesel",
+    "participaEnCalculos": true,
+    "anomalia": false,
+    "motivos": [],
+    "scoreAnomalia": 0,
+    "valida": { "estado": "pendiente" }
+  },
+  {
+    "id": "caso-1-lectura-02",
+    "sensorId": "sensor-ops-02",
+    "division": "División El Teniente",
+    "timestamp": "2025-09-10T08:05:00.000Z",
+    "valor": 1365,
+    "unidad": "kWh",
+    "tipo": "energia_kwh",
+    "participaEnCalculos": true,
+    "anomalia": false,
+    "motivos": [],
+    "scoreAnomalia": 0,
+    "valida": { "estado": "pendiente" }
+  },
+  {
+    "id": "caso-1-lectura-03",
+    "sensorId": "sensor-ops-03",
+    "division": "División El Teniente",
+    "timestamp": "2025-09-10T08:10:00.000Z",
+    "valor": 1205,
+    "unidad": "°C",
+    "tipo": "temperatura_c",
+    "participaEnCalculos": true,
+    "anomalia": false,
+    "motivos": [],
+    "scoreAnomalia": 0,
+    "valida": { "estado": "pendiente" }
+  }
+]

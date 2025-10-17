@@ -26,6 +26,10 @@ function Header() {
             </Link>
           </>
         )}
+        {/* Pestaña exclusiva para Jefe de Operaciones */}
+        {user && user.rol === 'jefe-operaciones' && (
+          <Link to="/alertas" className="text-sm text-white/90 hover:text-white">Alertas</Link>
+        )}
         <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
         <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
         <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>

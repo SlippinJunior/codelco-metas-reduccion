@@ -6,6 +6,7 @@ import VistaProgreso from './views/VistaProgreso';
 import VistaAuditoria from './views/VistaAuditoria';
 import VistaSensores from './views/VistaSensores';
 import VistaAnomalias from './views/VistaAnomalias';
+import Alertas from './pages/Alertas';
 import VistaCadenaRegistros from './views/VistaCadenaRegistros';
 import VistaVerificacion from './views/VistaVerificacion';
 import Login from './pages/Login';
@@ -55,6 +56,8 @@ function App() {
 
             {/* Módulo demostrativo de anomalías */}
             <Route path="/anomalias" element={<VistaAnomalias />} />
+            {/* Administración de alertas (visible por rol) */}
+            <Route path="/alertas" element={<Alertas />} />
 
             {/* Exportar reportes comparativos */}
             <Route path="/exportar-reportes" element={<ExportarReportes />} />
