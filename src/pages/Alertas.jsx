@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import servicioAlertas, { DEFAULT_ALERTAS } from '../services/servicioAlertas';
+import PoliticaEvaluacion from '../components/PoliticaEvaluacion';
+import SimulacionAlertas from '../components/SimulacionAlertas';
+import Tooltip from '../components/Tooltip';
 
 function Alertas() {
   const [config, setConfig] = useState(servicioAlertas.obtenerConfig());
@@ -57,81 +60,9 @@ function Alertas() {
 
         <section className="mb-6 card p-4">
           <h2 className="font-semibold mb-2">Política de evaluación (emisiones)</h2>
-          <label className="block mb-2">Nombre de la política
-            <input type="text" className="input mt-1" value={config.nombre || ''} onChange={e=>setConfig({...config, nombre: e.target.value})} aria-label="Nombre de política" />
-          </label>
-          <label className="block mb-2">
-            Método de agregación
-            <select className="input mt-1" value={config.metodo || 'media'} onChange={e=>setConfig({...config, metodo: e.target.value})} aria-label="Método de agregación">
-              <option value="media">Media</option>
-              <option value="maximo">Máximo</option>
-              <option value="percentil">Percentil (p)</option>
-            </select>
-            <div className="text-xs text-gray-500 mt-1">Micro-ayuda: elige cómo se agrega el conjunto de lecturas en la ventana móvil. Percentil permite ajustar sensibilidad (p).</div>
-          </label>
-          <label className="block mb-2">Percentil p (1-99)
-            <input type="number" className="input mt-1" value={config.percentilP ?? 95} onChange={e=>{
-              const v = e.target.value === '' ? '' : Number(e.target.value);
-              if (v !== '' && (v < 1 || v > 99)) { alert('Percentil debe estar entre 1 y 99'); return; }
-              setConfig({...config, percentilP: v});
-            }} aria-label="Percentil p" />
-          </label>
-          <label className="block mb-2">
-            Ventana de evaluación (días)
-            <input type="number" className="input mt-1" value={config.ventanaDias} onChange={e=>setConfig({...config, ventanaDias: Number(e.target.value)})} />
-          </label>
-          <label className="block mb-2">
-            Severidad por defecto
-            <select className="input mt-1" value={config.severidadPorDefecto} onChange={e=>setConfig({...config, severidadPorDefecto: e.target.value})}>
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-            </select>
-          </label>
-
-          {/* New: quick add/edit rule from global params */}
-          <div className="mt-4 border rounded p-3 bg-white">
-            <div className="font-semibold mb-2">Crear / editar regla rápida</div>
-            <div className="grid grid-cols-2 gap-2">
-              <input placeholder="Clave (ej. consumo_diesel)" className="input" value={config._nuevaClave || ''} onChange={e=>setConfig({...config, _nuevaClave: e.target.value})} />
-              <input placeholder="Nombre visual (ej. Consumo Diésel)" className="input" value={config._nuevaNombre || ''} onChange={e=>setConfig({...config, _nuevaNombre: e.target.value})} />
-              <input placeholder="Unidad (ej. L)" className="input" value={config._nuevaUnidad || ''} onChange={e=>setConfig({...config, _nuevaUnidad: e.target.value})} />
-              <input placeholder="Umbral" type="number" className="input" value={config._nuevaUmbral ?? ''} onChange={e=>setConfig({...config, _nuevaUmbral: e.target.value === '' ? '' : Number(e.target.value)})} />
-              <select className="input col-span-2" value={config._nuevaSeveridad || 'media'} onChange={e=>setConfig({...config, _nuevaSeveridad: e.target.value})}>
-                <option value="baja">Baja</option>
-                <option value="media">Media</option>
-                <option value="alta">Alta</option>
-              </select>
-            </div>
-            <div className="mt-3 flex space-x-2">
-              <button className="btn-secondary" onClick={() => {
-                const clave = (config._nuevaClave || '').trim();
-                if (!clave) { alert('La clave de la regla es obligatoria'); return; }
-                const nueva = {
-                  etiqueta: config._nuevaNombre || clave,
-                  unidad: config._nuevaUnidad || '',
-                  umbral: config._nuevaUmbral === '' ? null : config._nuevaUmbral,
-                  severidad: config._nuevaSeveridad || config.severidadPorDefecto || 'media'
-                };
-                setReglasEdit(prev => ({ ...prev, [clave]: nueva }));
-                // clear inputs
-                setConfig({...config, _nuevaClave: '', _nuevaNombre: '', _nuevaUnidad: '', _nuevaUmbral: '', _nuevaSeveridad: 'media'});
-                alert('Regla agregada al borrador. Puedes "Aplicar Reglas" o Guardar la configuración.');
-              }}>Agregar regla</button>
-              <button onClick={handleSimular} className="btn-secondary">Simular con datos históricos</button>
-              <button onClick={handleGuardar} className="btn-primary" disabled={guardando}>{guardando ? 'Guardando...' : 'Guardar (versionar)'}</button>
-              <button onClick={async () => {
-                try {
-                  const resp = await fetch('/data/caso-alerta-ejemplo.json');
-                  const datos = await resp.json();
-                  const alerts = servicioAlertas.simularAlertas(datos);
-                  setSimulacion(alerts);
-                  alert(`Simulación cargada: ${alerts.length} alertas`);
-                } catch (e) {
-                  alert('No se pudo cargar el caso de ejemplo');
-                }
-              }} className="btn-ghost">Cargar caso de ejemplo</button>
-            </div>
+          <PoliticaEvaluacion politica={config} onChange={p => setConfig(p)} />
+          <div className="mt-3 flex space-x-2">
+            <button onClick={handleGuardar} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-700" disabled={guardando}>{guardando ? 'Guardando...' : 'Guardar (versionar)'}</button>
           </div>
         </section>
 
@@ -140,23 +71,38 @@ function Alertas() {
           <div className="mb-4 border rounded p-3 bg-white">
             <div className="font-semibold mb-2">Crear / Editar regla completa</div>
             <div className="grid grid-cols-2 gap-2">
-              <input placeholder="Clave (indicador)" className="input" id="form-clave" value={config._formClave || ''} onChange={e=>setConfig({...config, _formClave: e.target.value})} aria-label="Clave indicador" />
-              <input placeholder="Etiqueta (nombre)" className="input" id="form-etiqueta" value={config._formEtiqueta || ''} onChange={e=>setConfig({...config, _formEtiqueta: e.target.value})} aria-label="Etiqueta" />
-              <input placeholder="Unidad (ej. L)" className="input" id="form-unidad" value={config._formUnidad || ''} onChange={e=>setConfig({...config, _formUnidad: e.target.value})} aria-label="Unidad" />
-              <input placeholder="Umbral" type="number" className="input" id="form-umbral" value={config._formUmbral ?? ''} onChange={e=>setConfig({...config, _formUmbral: e.target.value === '' ? '' : Number(e.target.value)})} aria-label="Umbral" />
-              <select className="input" id="form-direccion" value={config._formDireccion || '>'} onChange={e=>setConfig({...config, _formDireccion: e.target.value})} aria-label="Dirección">
-                <option value=">">Mayor que (&gt;)</option>
-                <option value="<">Menor que (&lt;)</option>
-              </select>
-              <select className="input" id="form-severidad" value={config._formSeveridad || 'media'} onChange={e=>setConfig({...config, _formSeveridad: e.target.value})} aria-label="Severidad">
-                <option value="baja">Baja</option>
-                <option value="media">Media</option>
-                <option value="alta">Alta</option>
-              </select>
-              <input placeholder="Ámbito (division/proceso)" className="input col-span-2" id="form-ambito" value={config._formAmbito || ''} onChange={e=>setConfig({...config, _formAmbito: e.target.value})} aria-label="Ámbito" />
+              <label className="block">Clave (indicador) <Tooltip>Variable a evaluar (p.ej., tCO₂e/ton Cu, consumo_diesel, SO₂).</Tooltip>
+                <input placeholder="Clave (indicador)" className="w-full rounded-lg border px-3 py-2" id="form-clave" value={config._formClave || ''} onChange={e=>setConfig({...config, _formClave: e.target.value})} aria-label="Clave indicador" />
+              </label>
+              <label className="block">Etiqueta (nombre)
+                <input placeholder="Etiqueta (nombre)" className="w-full rounded-lg border px-3 py-2" id="form-etiqueta" value={config._formEtiqueta || ''} onChange={e=>setConfig({...config, _formEtiqueta: e.target.value})} aria-label="Etiqueta" />
+              </label>
+              <label className="block">Unidad
+                <input placeholder="Unidad (ej. L)" className="w-full rounded-lg border px-3 py-2" id="form-unidad" value={config._formUnidad || ''} onChange={e=>setConfig({...config, _formUnidad: e.target.value})} aria-label="Unidad" />
+              </label>
+              <label className="block">Umbral <Tooltip>Valor límite en la misma unidad del indicador.</Tooltip>
+                <input placeholder="Umbral" type="number" className="w-full rounded-lg border px-3 py-2" id="form-umbral" value={config._formUmbral ?? ''} onChange={e=>setConfig({...config, _formUmbral: e.target.value === '' ? '' : Number(e.target.value)})} aria-label="Umbral" />
+              </label>
+              <label className="block">Dirección <Tooltip>Condición de disparo: '>' excedencia, '&lt;' umbral inferior. Usa la unidad del indicador.</Tooltip>
+                <select className="w-full rounded-lg border px-3 py-2" id="form-direccion" value={config._formDireccion || '>'} onChange={e=>setConfig({...config, _formDireccion: e.target.value})} aria-label="Dirección">
+                  <option value=">">Mayor que (&gt;)</option>
+                  <option value="<">Menor que (&lt;)</option>
+                </select>
+              </label>
+              <label className="block">Severidad <Tooltip>Prioridad de la alerta generada. Puede sobrescribir la severidad por defecto de la política.</Tooltip>
+                <select className="w-full rounded-lg border px-3 py-2" id="form-severidad" value={config._formSeveridad || 'media'} onChange={e=>setConfig({...config, _formSeveridad: e.target.value})} aria-label="Severidad">
+                  <option value="baja">Baja</option>
+                  <option value="media">Media</option>
+                  <option value="alta">Alta</option>
+                  <option value="critica">Crítica</option>
+                </select>
+              </label>
+              <label className="block col-span-2">Ámbito <Tooltip>Dónde aplica: División / Proceso / Tags de equipo.</Tooltip>
+                <input placeholder="Ámbito (division/proceso)" className="w-full rounded-lg border px-3 py-2" id="form-ambito" value={config._formAmbito || ''} onChange={e=>setConfig({...config, _formAmbito: e.target.value})} aria-label="Ámbito" />
+              </label>
             </div>
             <div className="mt-3 flex space-x-2">
-              <button className="btn-primary" onClick={() => {
+              <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-700" onClick={() => {
                 const clave = (config._formClave || '').trim();
                 if (!clave) { alert('Clave es obligatoria'); return; }
                 const nueva = {
@@ -172,7 +118,7 @@ function Alertas() {
                 setConfig({...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: ''});
                 alert('Regla creada/actualizada en borrador');
               }}>Guardar regla</button>
-              <button className="btn-secondary" onClick={() => {
+              <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={() => {
                 // cancel / clear
                 setConfig({...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: ''});
               }}>Limpiar</button>
@@ -227,19 +173,15 @@ function Alertas() {
 
         <section className="mb-6 card p-4">
           <h2 className="font-semibold mb-2">Simulación de alertas</h2>
-          <div className="flex items-center space-x-2 mb-3">
-            <button className="btn-secondary" onClick={() => {
-              const cfg = servicioAlertas.getConfig ? servicioAlertas.getConfig() : null;
+          <SimulacionAlertas
+            resultados={simulacion}
+            onSimular={() => {
+              const cfg = servicioAlertas.getConfig ? servicioAlertas.getConfig() : servicioAlertas.obtenerConfig();
               const results = servicioAlertas.simular(cfg, null, cfg?.ventanaDias);
-              // normalize to include id
-              const normalized = results.map((r, idx) => ({ id: `sim-${idx}-${r.indicador}-${r.timestamp}`, ...r }));
+              const normalized = (results || []).map((r, idx) => ({ id: `sim-${idx}-${r.indicador}-${r.timestamp || r.fecha || idx}`, ...r }));
               setSimulacion(normalized);
-            }}>Ejecutar simulador</button>
-            <button className="btn-ghost" onClick={() => {
-              setSimulacion([]);
-            }}>Limpiar resultados</button>
-            <button className="btn-primary" onClick={() => {
-              // export CSV
+            }}
+            onExport={() => {
               if (!simulacion || simulacion.length === 0) { alert('No hay resultados para exportar'); return; }
               const headers = ['timestamp','indicador','ambito','valor','umbral','exceso','pct','severidad','regla'];
               const csv = [headers.join(',')].concat(simulacion.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','))).join('\n');
@@ -248,74 +190,19 @@ function Alertas() {
               const a = document.createElement('a');
               a.href = url; a.download = 'simulacion_alertas.csv'; a.click();
               URL.revokeObjectURL(url);
-            }}>Exportar CSV</button>
-            <button className="btn-secondary" onClick={() => {
+            }}
+          />
+          <div className="mt-3">
+            <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={() => { setSimulacion([]); }}>Limpiar resultados</button>
+            <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 ml-2" onClick={() => {
               if (!simulacion || simulacion.length === 0) { alert('No hay resultados para crear'); return; }
               const res = servicioAlertas.registrarAlertas(simulacion);
-              if (res.success) {
+              if (res && res.success) {
                 alert(`Se registraron ${res.added} alertas en el historial`);
                 setHistFromService(servicioAlertas.listarHistorial());
               } else alert('Error registrando alertas');
             }}>Crear alertas demo</button>
           </div>
-
-          {simulacion.length === 0 ? (
-            <p className="text-sm text-gray-600">Presiona "Ejecutar simulador" para generar alertas a partir de los datos históricos y las reglas configuradas.</p>
-          ) : (
-            <div>
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto border-collapse">
-                  <thead>
-                    <tr className="text-left bg-gray-100">
-                      <th className="p-2">Fecha</th>
-                      <th className="p-2">Indicador</th>
-                      <th className="p-2">Ámbito</th>
-                      <th className="p-2">Valor</th>
-                      <th className="p-2">Umbral</th>
-                      <th className="p-2">Exceso</th>
-                      <th className="p-2">%</th>
-                      <th className="p-2">Severidad</th>
-                      <th className="p-2">Regla</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {simulacion.map(r => (
-                      <tr key={r.id} className="border-b">
-                        <td className="p-2 text-sm">{new Date(r.timestamp).toLocaleString()}</td>
-                        <td className="p-2 text-sm">{r.indicador}</td>
-                        <td className="p-2 text-sm">{r.ambito}</td>
-                        <td className="p-2 text-sm">{r.valor}</td>
-                        <td className="p-2 text-sm">{r.umbral}</td>
-                        <td className="p-2 text-sm">{Number((r.exceso || 0).toFixed(2))}</td>
-                        <td className="p-2 text-sm">{r.pct}%</td>
-                        <td className="p-2 text-sm">{r.severidad}</td>
-                        <td className="p-2 text-sm">{r.regla}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Simple per-indicator sparkline using SVG */}
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Array.from(new Set(simulacion.map(s=>s.indicador))).map(ind => {
-                  const rows = simulacion.filter(s=>s.indicador === ind).map(x=>x.valor);
-                  const max = Math.max(...rows);
-                  const min = Math.min(...rows);
-                  const points = rows.map((v,i)=> `${(i/(rows.length-1))*100},${100 - ((v - min)/(max-min || 1))*100}`);
-                  const path = points.join(' ');
-                  return (
-                    <div key={ind} className="p-3 border rounded bg-white">
-                      <div className="font-semibold mb-2">{ind}</div>
-                      <svg viewBox="0 0 100 100" className="w-full h-24" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-                        <polyline fill="none" stroke="#2563eb" strokeWidth="1.5" points={path} />
-                      </svg>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </section>
 
         <section className="card p-4">
