@@ -23,7 +23,7 @@ function BusquedaHuella({ onBuscar, onVerDetalle }) {
         setEstado({ tipo: 'success', mensaje: 'Bloque encontrado.', bloque: resultado });
       }
     } catch (error) {
-      console.error('Error buscando huella demo:', error);
+  console.error('Error buscando huella en el prototipo:', error);
       setEstado({ tipo: 'error', mensaje: 'No fue posible consultar la cadena en este momento.' });
     } finally {
       setBuscando(false);

@@ -32,7 +32,7 @@ const PanelFiltrosAnomalias = ({
             Filtros y resumen de anomalías
           </h2>
           <p className="text-sm text-codelco-secondary">
-            Ajusta los filtros para priorizar las lecturas más críticas. La detección es demostrativa.
+            Ajusta los filtros para priorizar las lecturas más críticas. La detección corre enteramente en el navegador.
           </p>
         </div>
         <button

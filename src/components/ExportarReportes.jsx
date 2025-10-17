@@ -279,7 +279,7 @@ const ExportarReportes = () => {
       const reporte = prepararReporte();
       const resultado = await generarPDF(reporte, {
         incluirHistorial,
-        firmante: firmante || 'Firmante Demo',
+        firmante: firmante || 'Firmante Responsable',
         nombreArchivo: 'reporte_comparativo.pdf'
       });
       setFirmaReciente({ tipo: 'PDF', ...resultado.firma });
@@ -302,7 +302,7 @@ const ExportarReportes = () => {
       const reporte = prepararReporte();
       const resultado = await generarCSV(reporte, {
         incluirHistorial,
-        firmante: firmante || 'Firmante Demo',
+        firmante: firmante || 'Firmante Responsable',
         nombreArchivo: 'reporte_comparativo.csv'
       });
       setFirmaReciente({ tipo: 'CSV', ...resultado.firma });
@@ -471,7 +471,7 @@ const ExportarReportes = () => {
                     type="text"
                     value={firmante}
                     onChange={(e) => setFirmante(e.target.value)}
-                    placeholder="Ejemplo: Gerente Sustentabilidad - Demo"
+                    placeholder="Ejemplo: Gerente Sustentabilidad"
                     className="form-input"
                   />
                 </div>

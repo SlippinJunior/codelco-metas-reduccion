@@ -151,7 +151,7 @@ function VistaAuditoria() {
               <div className="mt-3 text-xs text-codelco-secondary">
                 ¿Necesitas evidencia criptográfica? Visita la{' '}
                 <Link to="/verificacion" className="text-codelco-primary hover:underline font-medium">
-                  vista de verificación demostrativa
+                  vista de verificación
                 </Link>
                 .
               </div>

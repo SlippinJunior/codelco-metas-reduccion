@@ -80,11 +80,11 @@ function ResultadoVerificacion({
       {enProgreso ? (
         <div className="mt-6 flex flex-col items-center gap-3 text-sm text-codelco-secondary" role="status">
           <div className="animate-spin h-10 w-10 border-4 border-codelco-primary/30 border-t-codelco-primary rounded-full"></div>
-          Procesando verificación demostrativa…
+          Procesando verificación…
         </div>
       ) : !resultado ? (
         <div className="mt-6 text-sm text-codelco-secondary bg-codelco-light/40 border border-codelco-primary/20 rounded-lg p-4">
-          Esta experiencia recalcula la huella SHA-256 en el navegador usando la API Web Crypto. Los datos y resultados son de carácter demostrativo.
+          Esta experiencia recalcula la huella SHA-256 en el navegador usando la API Web Crypto. Los datos provienen del prototipo y se procesan íntegramente en el cliente.
         </div>
       ) : (
         <div className="mt-6 space-y-6">

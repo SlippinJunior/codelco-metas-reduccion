@@ -44,10 +44,10 @@ const ReglasAnomaliasEditor = ({ reglas, onGuardar, onReset }) => {
       <header className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h3 id="reglas-anomalias-titulo" className="text-lg font-semibold text-codelco-dark">
-            Parámetros de reglas (demo)
+            Parámetros de reglas del prototipo
           </h3>
           <p className="text-sm text-codelco-secondary max-w-xl">
-            Ajusta los parámetros de detección para explorar distintos escenarios durante la demostración. Los cambios se guardan en el navegador.
+            Ajusta los parámetros de detección para explorar distintos escenarios. Los cambios se guardan en el navegador.
           </p>
         </div>
         <button
@@ -83,7 +83,7 @@ const ReglasAnomaliasEditor = ({ reglas, onGuardar, onReset }) => {
               ))}
             </div>
             <p className="mt-3 text-xs text-codelco-secondary">
-              Nota: Esta lógica estadística es simplificada y se ejecuta en el navegador para efectos demo.
+              Nota: Esta lógica estadística es simplificada y se ejecuta en el navegador para fines académicos.
             </p>
           </fieldset>
         ))}

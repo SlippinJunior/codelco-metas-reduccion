@@ -57,7 +57,7 @@ const VistaSensores = () => {
 
   const manejarAlta = async () => {
     await refrescarSensores();
-    mostrarMensaje('success', 'Sensor registrado en el demo.');
+  mostrarMensaje('success', 'Sensor registrado en el prototipo.');
   };
 
   const manejarVerDetalle = async (sensorId) => {
@@ -107,7 +107,7 @@ const VistaSensores = () => {
         <header className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <h1 className="text-3xl font-bold text-codelco-dark mb-2">Simulador de Sensores</h1>
           <p className="text-sm text-codelco-secondary max-w-3xl">
-            Este módulo permite dar de alta sensores demostrativos y simular la recepción de paquetes mediante protocolos estándar como MQTT y HTTP.
+            Este módulo permite dar de alta sensores y simular la recepción de paquetes mediante protocolos estándar como MQTT y HTTP.
             Active la simulación automática para ver cómo los paquetes se reciben cada N segundos y cómo se registra el acuse de recibo en tiempo real.
           </p>
         </header>

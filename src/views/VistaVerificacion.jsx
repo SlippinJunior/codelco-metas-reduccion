@@ -22,7 +22,7 @@ function VistaVerificacion() {
   const [mostrarDivergencias, setMostrarDivergencias] = useState(false);
   const [historial, setHistorial] = useState([]);
   const [modalHuella, setModalHuella] = useState(null);
-  const [retardoDemostrativo, setRetardoDemostrativo] = useState(false);
+  const [retardoSimulado, setRetardoSimulado] = useState(false);
   const [advertirLentitud, setAdvertirLentitud] = useState(false);
   const [jsonManual, setJsonManual] = useState('');
   const [errorManual, setErrorManual] = useState('');
@@ -44,7 +44,7 @@ function VistaVerificacion() {
         }
       } catch (err) {
         if (activo) {
-          setError('No fue posible cargar los registros demostrativos.');
+          setError('No fue posible cargar los registros de la cadena.');
         }
       }
     };
@@ -53,8 +53,8 @@ function VistaVerificacion() {
   }, []);
 
   useEffect(() => {
-    configurarDelaySimulado(retardoDemostrativo ? 1200 : 0);
-  }, [retardoDemostrativo]);
+    configurarDelaySimulado(retardoSimulado ? 1200 : 0);
+  }, [retardoSimulado]);
 
   const manejarVerificacion = async (registroId, opciones = {}) => {
     if (!registroId) {
@@ -94,7 +94,7 @@ function VistaVerificacion() {
         return next.slice(-8);
       });
     } catch (err) {
-      console.error('Verificación demonstrativa fallida:', err);
+  console.error('Verificación fallida:', err);
       setError(err.message || 'No fue posible completar la verificación.');
     } finally {
       setVerificando(false);
@@ -164,7 +164,7 @@ function VistaVerificacion() {
     try {
       await generarInformeVerificacion(resultado, formato);
     } catch (err) {
-      setError('No fue posible generar el informe demostrativo.');
+      setError('No fue posible generar el informe.');
     }
   };
 
@@ -186,7 +186,7 @@ function VistaVerificacion() {
       usuario: registro?.usuario,
       tipo: registro?.tipo_entidad,
       fecha: registro?.fecha_hora,
-      manipulacion: casos.find((item) => item.registro_id === registroSeleccionado)?.manipulacion_demo?.descripcion || 'Sin manipulación sugerida.'
+  manipulacion: casos.find((item) => item.registro_id === registroSeleccionado)?.manipulacion_demo?.descripcion || 'Sin manipulación sugerida.'
     };
   }, [casos, registroSeleccionado, registros]);
 
@@ -197,11 +197,11 @@ function VistaVerificacion() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="space-y-3">
               <span className="inline-flex items-center gap-2 text-xs font-semibold bg-codelco-primary/10 text-codelco-primary px-3 py-1 rounded-full">
-                Demostrativo · Integridad de registros
+                Prototipo académico · Integridad de registros
               </span>
               <h1 className="text-3xl font-semibold text-codelco-dark">Verificación criptográfica de registros</h1>
               <p className="text-sm text-codelco-secondary max-w-2xl">
-                Recalcula la huella SHA-256 de los bloques de la cadena demostrativa y compara los resultados para mostrar si el registro se mantiene íntegro. Puedes simular manipulaciones y medir el tiempo empleado en la verificación.
+                Recalcula la huella SHA-256 de los bloques de la cadena y compara los resultados para mostrar si el registro se mantiene íntegro. Puedes simular manipulaciones y medir el tiempo empleado en la verificación.
               </p>
               <div className="flex flex-wrap items-center gap-3 text-xs text-codelco-secondary">
                 <Link to="/cadena-registros" className="text-codelco-primary hover:underline">
@@ -221,7 +221,7 @@ function VistaVerificacion() {
                   <div>Tipo: <span className="font-medium text-codelco-dark">{resumenSeleccionado.tipo}</span></div>
                   <div>Usuario: <span className="font-medium text-codelco-dark">{resumenSeleccionado.usuario}</span></div>
                   <div>Fecha: {resumenSeleccionado.fecha ? new Date(resumenSeleccionado.fecha).toLocaleString('es-CL') : 'No disponible'}</div>
-                  <div className="text-xs text-codelco-secondary/80">Manipulación demo: {resumenSeleccionado.manipulacion}</div>
+                  <div className="text-xs text-codelco-secondary/80">Manipulación sugerida: {resumenSeleccionado.manipulacion}</div>
                 </div>
               </div>
             )}
@@ -244,11 +244,11 @@ function VistaVerificacion() {
               cargando={verificando && !resultado}
             />
 
-            <div className="card space-y-4 border border-codelco-primary/40" aria-label="Herramientas de demostración">
+            <div className="card space-y-4 border border-codelco-primary/40" aria-label="Herramientas de verificación">
               <header>
                 <h2 className="text-lg font-semibold text-codelco-dark flex items-center gap-2">
                   <span role="img" aria-hidden="true">🛠️</span>
-                  Herramientas para la demostración
+                  Herramientas para la verificación
                 </h2>
                 <p className="text-sm text-codelco-secondary">
                   Carga un JSON externo o simula una manipulación para observar cómo cambia el resultado de la verificación.
@@ -306,7 +306,7 @@ function VistaVerificacion() {
 
                     <div className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-3 py-2">
                       <div>
-                        <p className="text-sm text-codelco-dark">Forzar retardo demostrativo</p>
+                        <p className="text-sm text-codelco-dark">Forzar retardo simulado</p>
                         <p className="text-xs text-codelco-secondary">
                           Añade ~1.2 s de demora para mostrar la advertencia de tiempo excedido.
                         </p>
@@ -315,8 +315,8 @@ function VistaVerificacion() {
                         <input
                           type="checkbox"
                           className="form-checkbox"
-                          checked={retardoDemostrativo}
-                          onChange={(event) => setRetardoDemostrativo(event.target.checked)}
+                          checked={retardoSimulado}
+                          onChange={(event) => setRetardoSimulado(event.target.checked)}
                         />
                         Activar
                       </label>

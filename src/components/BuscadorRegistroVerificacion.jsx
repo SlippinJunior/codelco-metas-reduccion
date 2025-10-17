@@ -33,7 +33,7 @@ function BuscadorRegistroVerificacion({
           Buscar registro a verificar
         </h2>
         <p className="text-sm text-codelco-secondary">
-          Introduce el identificador completo o parte de la descripción para localizar registros de la cadena demostrativa.
+          Introduce el identificador completo o parte de la descripción para localizar registros de la cadena.
         </p>
       </header>
 
@@ -97,7 +97,7 @@ function BuscadorRegistroVerificacion({
                     </div>
                   </div>
                   <p className="text-sm text-codelco-secondary">
-                    {casoEncontrado?.descripcion || registro.descripcion || 'Registro demostrativo registrado en la cadena.'}
+                    {casoEncontrado?.descripcion || registro.descripcion || 'Registro registrado en la cadena.'}
                   </p>
                   <div className="text-xs text-codelco-secondary flex flex-wrap items-center gap-3">
                     <span className="bg-white border border-codelco-primary/20 px-2 py-1 rounded">

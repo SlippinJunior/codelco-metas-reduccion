@@ -31,7 +31,7 @@ function VistaCadenaRegistros() {
       const resultado = await listarBloques();
       setBloques(resultado);
     } catch (err) {
-      console.error('Error al listar cadena demo:', err);
+  console.error('Error al listar cadena:', err);
       setError('No fue posible cargar la cadena simulada.');
     } finally {
       setCargando(false);
@@ -68,7 +68,7 @@ function VistaCadenaRegistros() {
       };
     } catch (err) {
       console.error('Error al crear bloque demo:', err);
-      return { success: false, message: 'No fue posible generar el bloque demostrativo.' };
+  return { success: false, message: 'No fue posible generar el bloque.' };
     } finally {
       setCreando(false);
     }
@@ -86,7 +86,7 @@ function VistaCadenaRegistros() {
       await exportarCadenaPDF(bloques);
       await generarPruebaFirmaSimulada(bloques);
     } catch (err) {
-      console.error('Error en exportación demo de cadena:', err);
+  console.error('Error en exportación de cadena:', err);
     } finally {
       setExportando(false);
     }
@@ -99,7 +99,7 @@ function VistaCadenaRegistros() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 bg-codelco-primary/10 text-codelco-primary px-3 py-1 rounded-full text-xs font-semibold">
-              Módulo demostrativo · No vinculante
+              Módulo informativo · No vinculante
             </div>
             <h1 className="text-3xl font-semibold text-codelco-dark">Cadena de registros validados</h1>
             <p className="text-sm text-codelco-secondary max-w-2xl">
@@ -159,7 +159,7 @@ function VistaCadenaRegistros() {
             <BusquedaHuella onBuscar={manejarBusqueda} onVerDetalle={setBloqueSeleccionado} />
 
             <div className="card">
-              <h2 className="text-lg font-semibold text-codelco-dark">Exportaciones demo</h2>
+              <h2 className="text-lg font-semibold text-codelco-dark">Exportaciones</h2>
               <p className="text-sm text-codelco-secondary mt-2">
                 Genera evidencias en CSV, PDF y un archivo con la huella global concatenada simulando una firma.
               </p>
@@ -172,14 +172,14 @@ function VistaCadenaRegistros() {
                 {exportando ? 'Generando evidencias...' : 'Exportar cadena y evidencia'}
               </button>
               <p className="text-xs text-codelco-secondary mt-3">
-                Los archivos se generan en la carpeta de descargas del navegador con prefijos demo.
+                Los archivos se generan en la carpeta de descargas del navegador con prefijos del prototipo.
               </p>
             </div>
 
             <div className="card border border-codelco-primary/30 bg-blue-50/60">
               <h2 className="text-lg font-semibold text-codelco-dark">Verificar integridad</h2>
               <p className="text-sm text-codelco-secondary mt-2">
-                Dirígete a la vista <strong>Verificación</strong> para recalcular huellas, comparar contenidos y generar informes de evidencia demostrativa.
+                Dirígete a la vista <strong>Verificación</strong> para recalcular huellas, comparar contenidos y generar informes de evidencia.
               </p>
               <Link
                 to="/verificacion"

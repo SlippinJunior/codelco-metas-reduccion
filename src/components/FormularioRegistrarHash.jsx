@@ -6,19 +6,19 @@ const OPCIONES_ENTIDAD = [
   { id: 'reportes', label: 'Reportes internos' }
 ];
 
-const PLANTILLAS_DEMO = {
+const PLANTILLAS_EJEMPLO = {
   metas: {
     registro_id: 'META-DEM-001',
     tipo_entidad: 'metas',
     contenido: '{"meta":"Reducir emisiones alcance 2","valor_proyectado":12.5,"unidad":"%"}',
-    usuario: 'Auditor Demo',
+    usuario: 'Auditor Responsable',
     motivo: 'Validación de hito trimestral'
   },
   sensores: {
     registro_id: 'SENSOR-DEM-045',
     tipo_entidad: 'sensores',
     contenido: '{"sensor":"CHU-CO2-01","lectura_ppm":367,"umbral":400}',
-    usuario: 'Control Interno Demo',
+    usuario: 'Control Interno',
     motivo: 'Confirmación de calibración'
   },
   reportes: {
@@ -45,10 +45,10 @@ function FormularioRegistrarHash({ onSubmit, isSubmitting }) {
   };
 
   const handlePlantilla = (tipo) => {
-    const plantilla = PLANTILLAS_DEMO[tipo];
+  const plantilla = PLANTILLAS_EJEMPLO[tipo];
     if (!plantilla) return;
     setForm({ ...plantilla });
-    setFeedback({ tipo: 'info', mensaje: 'Campos cargados con datos demostrativos.' });
+  setFeedback({ tipo: 'info', mensaje: 'Campos cargados con datos de ejemplo.' });
   };
 
   const handleSubmit = async (event) => {
@@ -75,7 +75,7 @@ function FormularioRegistrarHash({ onSubmit, isSubmitting }) {
         setFeedback({ tipo: 'error', mensaje: resultado.message || 'No fue posible generar el bloque.' });
       }
     } catch (error) {
-      console.error('Error al confirmar registro demo:', error);
+  console.error('Error al confirmar registro:', error);
       setFeedback({ tipo: 'error', mensaje: 'Ocurrió un error inesperado. Intenta nuevamente.' });
     }
   };
@@ -84,11 +84,11 @@ function FormularioRegistrarHash({ onSubmit, isSubmitting }) {
     <form className="card h-full flex flex-col" onSubmit={handleSubmit} noValidate>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xl font-semibold text-codelco-dark">Confirmar registro (demo)</h2>
+          <h2 className="text-xl font-semibold text-codelco-dark">Confirmar registro</h2>
           <p className="text-sm text-codelco-secondary">Cada confirmación genera una huella criptográfica y un bloque enlazado.</p>
         </div>
         <span className="text-xs uppercase tracking-wide text-codelco-accent font-semibold bg-codelco-accent/10 px-3 py-1 rounded-full">
-          Demostración
+          Prototipo académico
         </span>
       </div>
 
@@ -137,7 +137,7 @@ function FormularioRegistrarHash({ onSubmit, isSubmitting }) {
               name="usuario"
               type="text"
               className="form-input"
-              placeholder="Auditor Demo"
+              placeholder="Auditor Responsable"
               value={form.usuario}
               onChange={(e) => actualizarCampo('usuario', e.target.value)}
               required
@@ -159,7 +159,7 @@ function FormularioRegistrarHash({ onSubmit, isSubmitting }) {
             required
           />
           <p className="text-xs text-codelco-secondary mt-1">
-            Para demostración, el contenido se serializa y firma con SHA-256 + sello “registro demostrativo - no vinculante”.
+            El contenido se serializa y firma con SHA-256 junto a un sello “registro no vinculante”.
           </p>
         </div>
 

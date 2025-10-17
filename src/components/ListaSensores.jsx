@@ -41,7 +41,7 @@ const ListaSensores = ({ sensores = [], onVerDetalle, onSimular, onEliminar }) =
       <div className="card text-center" role="status">
         <h3 className="text-lg font-semibold text-codelco-dark mb-2">No hay sensores registrados</h3>
         <p className="text-codelco-secondary text-sm">
-          Utilice el formulario superior para dar de alta el primer sensor del demo.
+          Utilice el formulario superior para dar de alta el primer sensor del listado.
         </p>
       </div>
     );
@@ -109,7 +109,7 @@ const ListaSensores = ({ sensores = [], onVerDetalle, onSimular, onEliminar }) =
               type="button"
               className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
               onClick={() => {
-                const confirmado = window.confirm('¿Está seguro de eliminar el sensor? Esta acción es demostrativa pero irreversible.');
+                const confirmado = window.confirm('¿Está seguro de eliminar el sensor? Esta acción forma parte del prototipo, pero es irreversible.');
                 if (confirmado) {
                   onEliminar?.(sensor.id);
                 }

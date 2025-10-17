@@ -72,7 +72,7 @@ const ModalValidacion = ({
         <header className="px-6 pt-6 pb-4 border-b border-gray-100">
           <h3 className="text-xl font-semibold text-codelco-dark">Validación de lectura</h3>
           <p className="text-sm text-codelco-secondary">
-            Revisa el contexto antes de aprobar o rechazar. Esta simulación está pensada para demostraciones.
+            Revisa el contexto antes de aprobar o rechazar. Esta simulación está pensada para explicar el flujo de validación.
           </p>
         </header>
 
@@ -130,7 +130,7 @@ const ModalValidacion = ({
                   <path d="M0 40 L220 40" stroke="#e2e8f0" strokeWidth="1" fill="none" />
                   <path d={sparkline || 'M0 40 L220 40'} stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="mt-2 text-xs text-codelco-secondary">Sparkline demostrativo (últimas lecturas)</span>
+                <span className="mt-2 text-xs text-codelco-secondary">Sparkline ilustrativo (últimas lecturas)</span>
               </div>
               <ul className="space-y-2 text-sm">
                 {historial.length === 0 && (

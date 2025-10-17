@@ -186,7 +186,7 @@ const VistaAnomalias = () => {
     try {
       const resultado = await servicioAnomalias.rechazarLectura(lecturaActiva.id, 'tecnico_demo', comentario);
       if (resultado.success) {
-        mostrarMensaje('Lectura rechazada. Se excluye de los cálculos demostrativos.');
+  mostrarMensaje('Lectura rechazada. Se excluye de los cálculos del prototipo.');
         cargarLecturas();
         cerrarModal();
         setSeleccionadas(prev => prev.filter(id => id !== lecturaActiva.id));
@@ -243,7 +243,7 @@ const VistaAnomalias = () => {
     servicioAnomalias.actualizarReglasParciales(nuevasReglas);
     setReglas(obtenerReglasServicio());
     cargarLecturas();
-    mostrarMensaje('Reglas actualizadas para la sesión demo.');
+  mostrarMensaje('Reglas actualizadas para la sesión del prototipo.');
   };
 
   const manejarResetReglas = () => {
@@ -257,7 +257,7 @@ const VistaAnomalias = () => {
     <main className="min-h-screen bg-codelco-light py-8">
       <div className="max-w-7xl mx-auto px-4 space-y-8">
         <header>
-          <h1 className="text-3xl font-bold text-codelco-dark">Detección de datos anómalos (demo)</h1>
+          <h1 className="text-3xl font-bold text-codelco-dark">Detección de datos anómalos del prototipo</h1>
           <p className="mt-2 text-sm text-codelco-secondary max-w-3xl">
             Este módulo evidencia cómo un equipo técnico podría detectar, validar y documentar lecturas sospechosas en terreno. Los datos y reglas se ejecutan en el navegador con fines ilustrativos.
           </p>

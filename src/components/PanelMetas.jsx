@@ -199,7 +199,7 @@ const PanelMetas = ({ actualizarContador }) => {
         }
       }
     } catch (err) {
-      console.warn('No fue posible leer el usuario actual para banner de cadena demo:', err);
+  console.warn('No fue posible leer el usuario actual para banner de cadena:', err);
     }
   }, []);
 
@@ -251,17 +251,17 @@ const PanelMetas = ({ actualizarContador }) => {
           <div className="absolute inset-y-0 left-0 w-1 bg-codelco-accent/70" aria-hidden="true"></div>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div>
-              <p className="text-xs uppercase tracking-wide text-codelco-accent font-semibold">Acceso exclusivo de demostración</p>
+              <p className="text-xs uppercase tracking-wide text-codelco-accent font-semibold">Acceso exclusivo</p>
               <h2 className="text-2xl font-semibold text-codelco-dark mt-2">
-                Cadena de registros validada en blockchain (demo)
+                Cadena de registros validada en blockchain
               </h2>
               <p className="text-sm text-codelco-secondary mt-2 max-w-2xl">
-                Explora el módulo demostrativo que simula cómo se confirma cada registro con huellas criptográficas y referencia a bloques previos, pensado para auditorías y control interno.
+                Explora el módulo que simula cómo se confirma cada registro con huellas criptográficas y referencia a bloques previos, pensado para auditorías y control interno.
               </p>
             </div>
             <div className="flex flex-col items-start lg:items-end gap-3">
               <span className="inline-flex items-center bg-codelco-primary/10 text-codelco-primary text-xs font-semibold px-3 py-1 rounded-full">
-                Demo académica - no vinculante
+                Prototipo académico - no vinculante
               </span>
               <button
                 type="button"

@@ -45,7 +45,7 @@ function DetalleBloque({ bloque, onClose }) {
         setResultado({ estado: 'manipulado', calculada: huellaCalculada });
       }
     } catch (error) {
-      console.error('Error en verificación demo:', error);
+  console.error('Error en verificación:', error);
       setResultado({ estado: 'error', mensaje: 'No fue posible recalcular la huella.' });
     } finally {
       setVerificando(false);
@@ -206,7 +206,7 @@ function DetalleBloque({ bloque, onClose }) {
 
         <footer className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-wrap gap-4 items-center justify-between rounded-b-2xl">
           <p className="text-xs text-codelco-secondary">
-            Este módulo es demostrativo. No ejecuta transacciones reales en blockchain.
+            Este módulo no ejecuta transacciones reales en blockchain.
           </p>
           <button
             type="button"

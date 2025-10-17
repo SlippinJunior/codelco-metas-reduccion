@@ -41,7 +41,7 @@ function ListaBloques({ bloques = [], onVerDetalle }) {
       <div className="card text-center">
         <h3 className="text-lg font-semibold text-codelco-dark">Sin bloques registrados todavía</h3>
         <p className="text-sm text-codelco-secondary mt-2">
-          Cuando generes un nuevo registro demostrativo, aparecerá aquí con su enlace a la cadena.
+          Cuando generes un nuevo registro, aparecerá aquí con su enlace a la cadena.
         </p>
       </div>
     );
@@ -110,7 +110,7 @@ function ListaBloques({ bloques = [], onVerDetalle }) {
                       {formatearFecha(bloque.fecha_hora)}
                     </span>
                     <span className="inline-flex items-center gap-2 bg-codelco-primary/10 text-codelco-primary px-2 py-1 rounded-full font-medium">
-                      {bloque.sello || 'Registro demostrativo - no vinculante'}
+                      {bloque.sello || 'Registro no vinculante'}
                     </span>
                   </div>
                 </div>
@@ -154,7 +154,7 @@ function ListaBloques({ bloques = [], onVerDetalle }) {
 
                   <div className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs text-codelco-secondary">
                     <p className="font-semibold text-codelco-dark">Motivo / Nota:</p>
-                    <p className="mt-1 whitespace-pre-wrap">{bloque.motivo || 'Sin motivo asociado (demo).'}</p>
+                    <p className="mt-1 whitespace-pre-wrap">{bloque.motivo || 'Sin motivo asociado.'}</p>
                   </div>
                 </div>
 

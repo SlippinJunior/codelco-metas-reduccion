@@ -19,10 +19,10 @@ function Header() {
           <>
             <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoría</Link>
             <Link to="/cadena-registros" className="text-sm text-white/90 hover:text-white">
-              Cadena de registros (demo)
+              Cadena de registros
             </Link>
             <Link to="/verificacion" className="text-sm text-white/90 hover:text-white">
-              Verificación (demo)
+              Verificación
             </Link>
           </>
         )}
