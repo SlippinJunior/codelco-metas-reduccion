@@ -20,28 +20,29 @@ function Header() {
         <Link to="/dashboard" className="font-semibold text-white">Codelco - Metas</Link>
         {user && (['control-interno','auditor'].includes(user.rol)) && (
           <>
-            <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoría</Link>
+            <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoria</Link>
             <Link to="/cadena-registros" className="text-sm text-white/90 hover:text-white">
               Cadena de registros
             </Link>
             <Link to="/verificacion" className="text-sm text-white/90 hover:text-white">
-              Verificación
+              Verificacion
             </Link>
           </>
         )}
         {user && (['operario','fundicion_turno'].includes(user.rol)) && (
           <Link to="/operario/activos" className="text-sm text-white/90 hover:text-white">Activos (Tiempo Real)</Link>
         )}
-        {/* Pestaña exclusiva para Jefe de Operaciones */}
+        {/* Pestana exclusiva para Jefe de Operaciones */}
         {user && user.rol === 'jefe-operaciones' && (
           <Link to="/alertas" className="text-sm text-white/90 hover:text-white">Alertas</Link>
         )}
         <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
         <Link to="/comunidades" className="text-sm text-white/90 hover:text-white">Portal Ciudadano</Link>
+        <Link to="/prediccion-ia" className="text-sm text-white/90 hover:text-white">IA Desvios</Link>
         <Link to="/escenarios" className="text-sm text-white/90 hover:text-white">Escenarios</Link>
         <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
         <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>
-        <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalías</Link>
+        <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalias</Link>
       </div>
       <div>
         {user ? (

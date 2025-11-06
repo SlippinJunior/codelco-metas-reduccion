@@ -1,13 +1,13 @@
 /**
  * servicioComunidades.js
  * Fuente de datos sanitizada para el Portal Ciudadano.
- * No expone información operacional crítica: solo resúmenes de avance.
+ * No expone informacion operacional critica: solo resumenes de avance.
  */
 
 const REGIONES = [
-  { id: 'norte', nombre: 'Zona Norte (Antofagasta - Tarapacá)' },
-  { id: 'centro', nombre: 'Zona Centro (Valparaíso - Metropolitana)' },
-  { id: 'sur', nombre: 'Zona Sur (O’Higgins - Biobío)' }
+  { id: 'norte', nombre: 'Zona Norte (Antofagasta - Tarapaca)' },
+  { id: 'centro', nombre: 'Zona Centro (Valparaiso - Metropolitana)' },
+  { id: 'sur', nombre: 'Zona Sur (OHiggins - Biobio)' }
 ];
 
 const PERIODOS = [
@@ -21,7 +21,7 @@ const AVANCES = [
     id: 'av-norte-2024-t2',
     region: 'norte',
     periodo: '2024-t2',
-    titulo: 'Energía renovable para campamentos',
+    titulo: 'Energia renovable para campamentos',
     resumen:
       'Se habilitaron 4 microredes solares que abastecen 230 familias, reduciendo cortes en sectores rurales.',
     indicadores: {
@@ -29,22 +29,22 @@ const AVANCES = [
       reduccionEmisionesTon: 120,
       porcentajeAvance: 72
     },
-    temas: ['energía limpia', 'infraestructura'],
+    temas: ['energia limpia', 'infraestructura'],
     imagenAlt: 'Paneles solares instalados en viviendas de la zona norte.'
   },
   {
     id: 'av-norte-2024-t1',
     region: 'norte',
     periodo: '2024-t1',
-    titulo: 'Programa de becas técnicas',
+    titulo: 'Programa de becas tecnicas',
     resumen:
-      '80 estudiantes de liceos técnicos iniciaron prácticas en iniciativas de eficiencia hídrica.',
+      '80 estudiantes de liceos tecnicos iniciaron practicas en iniciativas de eficiencia hidrica.',
     indicadores: {
       hogaresBeneficiados: 80,
       reduccionEmisionesTon: 35,
       porcentajeAvance: 55
     },
-    temas: ['educación', 'empleo local'],
+    temas: ['educacion', 'empleo local'],
     imagenAlt: 'Estudiantes con cascos de seguridad en un laboratorio.'
   },
   {
@@ -60,13 +60,13 @@ const AVANCES = [
       porcentajeAvance: 64
     },
     temas: ['salud', 'transparencia'],
-    imagenAlt: 'Vecinos observando una estación de monitoreo ambiental.'
+    imagenAlt: 'Vecinos observando una estacion de monitoreo ambiental.'
   },
   {
     id: 'av-centro-2023-t4',
     region: 'centro',
     periodo: '2023-t4',
-    titulo: 'Recuperación de espacios públicos',
+    titulo: 'Recuperacion de espacios publicos',
     resumen:
       'Se inauguraron 3 plazas con sombreaderos y riego eficiente en comunas vecinas a operaciones.',
     indicadores: {
@@ -74,23 +74,23 @@ const AVANCES = [
       reduccionEmisionesTon: 18,
       porcentajeAvance: 100
     },
-    temas: ['espacio público', 'agua'],
+    temas: ['espacio publico', 'agua'],
     imagenAlt: 'Familias utilizando juegos infantiles bajo estructuras sombreadas.'
   },
   {
     id: 'av-sur-2024-t1',
     region: 'sur',
     periodo: '2024-t1',
-    titulo: 'Reforestación participativa',
+    titulo: 'Reforestacion participativa',
     resumen:
-      'Comunidades escolares plantaron 4.500 árboles nativos en quebradas priorizadas por los municipios.',
+      'Comunidades escolares plantaron 4.500 arboles nativos en quebradas priorizadas por los municipios.',
     indicadores: {
       hogaresBeneficiados: 260,
       reduccionEmisionesTon: 95,
       porcentajeAvance: 48
     },
-    temas: ['biodiversidad', 'educación'],
-    imagenAlt: 'Niños y niñas plantando árboles nativos con apoyo de monitores.'
+    temas: ['biodiversidad', 'educacion'],
+    imagenAlt: 'Ninos y ninas plantando arboles nativos con apoyo de monitores.'
   }
 ];
 

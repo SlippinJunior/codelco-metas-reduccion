@@ -14,6 +14,7 @@ import VistaVerificacion from './views/VistaVerificacion';
 import VistaEscenariosMitigacion from './views/VistaEscenariosMitigacion';
 import VistaPortalCiudadano from './views/VistaPortalCiudadano';
 import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
+import VistaPrediccionIA from './views/VistaPrediccionIA';
 import Login from './pages/Login';
 import Header from './components/Header';
 import ExportarReportes from './components/ExportarReportes';
@@ -52,6 +53,8 @@ function App() {
             {/* Portal ciudadano accesible */}
             <Route path="/comunidades" element={<VistaPortalCiudadano />} />
             <Route path="/comunidades/glosario" element={<VistaGlosarioCiudadano />} />
+            {/* Prediccion con IA */}
+            <Route path="/prediccion-ia" element={<VistaPrediccionIA />} />
             {/* Panel de Auditoría - acceso simulado por rol */}
             <Route path="/auditoria" element={<VistaAuditoria />} />
 

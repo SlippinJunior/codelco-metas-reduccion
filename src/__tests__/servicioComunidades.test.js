@@ -7,7 +7,7 @@ import {
 } from '../services/servicioComunidades';
 
 describe('servicioComunidades', () => {
-  it('entrega regiones y periodos con opción "todos"', () => {
+  it('entrega regiones y periodos con opcion "todos"', () => {
     const regiones = listarRegiones();
     const periodos = listarPeriodos();
 
@@ -17,7 +17,7 @@ describe('servicioComunidades', () => {
     expect(periodos.length).toBeGreaterThan(1);
   });
 
-  it('filtra avances por región y periodo sin exponer datos críticos', () => {
+  it('filtra avances por region y periodo sin exponer datos criticos', () => {
     const resultado = listarAvances('norte', '2024-t2');
     expect(resultado.success).toBe(true);
     expect(resultado.data.length).toBeGreaterThanOrEqual(1);
@@ -38,10 +38,10 @@ describe('servicioComunidades', () => {
     expect(resumen.data.totalComunidades).toBe(totalHogares);
   });
 
-  it('lista temas únicos disponibles', () => {
+  it('lista temas unicos disponibles', () => {
     const temas = obtenerTemasDisponibles();
     const setTemas = new Set(temas);
     expect(temas.length).toBe(setTemas.size);
-    expect(temas).toContain('energía limpia');
+    expect(temas).toContain('energia limpia');
   });
 });

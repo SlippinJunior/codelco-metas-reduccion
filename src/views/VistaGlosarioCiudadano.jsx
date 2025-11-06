@@ -3,27 +3,27 @@ import React from 'react';
 const GLOSARIO = [
   {
     termino: 'Avance (%)',
-    definicion: 'Porcentaje que indica cuánto se ha completado un proyecto en comparación con la meta comprometida.'
+    definicion: 'Porcentaje que indica cuanto se ha completado un proyecto en comparacion con la meta comprometida.'
   },
   {
     termino: 'Emisiones evitadas',
-    definicion: 'Toneladas estimadas de gases de efecto invernadero que no se liberan a la atmósfera gracias a una iniciativa.'
+    definicion: 'Toneladas estimadas de gases de efecto invernadero que no se liberan a la atmosfera gracias a una iniciativa.'
   },
   {
-    termino: 'Mesa de vinculación',
-    definicion: 'Instancia periódica donde representantes de la comunidad y Codelco revisan compromisos y resuelven dudas.'
+    termino: 'Mesa de vinculacion',
+    definicion: 'Instancia periodica donde representantes de la comunidad y Codelco revisan compromisos y resuelven dudas.'
   },
   {
     termino: 'Microred',
-    definicion: 'Sistema de energía local que puede utilizar fuentes renovables y entregar electricidad a hogares cercanos.'
+    definicion: 'Sistema de energia local que puede utilizar fuentes renovables y entregar electricidad a hogares cercanos.'
   },
   {
     termino: 'Plan de monitoreo',
-    definicion: 'Programa coordinado para medir un elemento (por ejemplo, la calidad del aire) y compartir los resultados con la ciudadanía.'
+    definicion: 'Programa coordinado para medir un elemento (por ejemplo, la calidad del aire) y compartir los resultados con la ciudadania.'
   },
   {
-    termino: 'Reforestación participativa',
-    definicion: 'Actividad donde la comunidad planta árboles nativos y aprende sobre el cuidado del entorno.'
+    termino: 'Reforestacion participativa',
+    definicion: 'Actividad donde la comunidad planta arboles nativos y aprende sobre el cuidado del entorno.'
   }
 ];
 
@@ -36,7 +36,7 @@ const VistaGlosarioCiudadano = () => (
         </p>
         <h1 className="text-4xl font-extrabold">Lenguaje claro para nuestras comunidades</h1>
         <p className="text-slate-200 text-lg">
-          Aquí encontrarás explicaciones sencillas y de fácil lectura sobre los términos que utilizamos en el portal.
+          Aqui encontraras explicaciones sencillas y de facil lectura sobre los terminos que utilizamos en el portal.
           Puedes navegar con teclado, copiar definiciones y volver al portal cuando quieras.
         </p>
         <a
@@ -50,7 +50,7 @@ const VistaGlosarioCiudadano = () => (
       <section className="mt-10 bg-white text-slate-900 rounded-3xl p-8 shadow-lg border border-slate-200">
         <h2 className="text-2xl font-bold text-slate-900">Definiciones clave</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Si necesitas más detalles, escribe a <a href="mailto:comunidades@codelco.cl" className="text-amber-700 underline">comunidades@codelco.cl</a>.
+          Si necesitas ms detalles, escribe a <a href="mailto:comunidades@codelco.cl" className="text-amber-700 underline">comunidades@codelco.cl</a>.
         </p>
         <dl className="mt-6 space-y-5">
           {GLOSARIO.map(item => (
