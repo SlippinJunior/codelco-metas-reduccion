@@ -105,7 +105,7 @@ const VistaPortalCiudadano = () => {
     }
   }, [iniciativasExtras]);
 
-  const avancesPublicos = useMemo(() => listarAvances(region, periodo), [region, periodo]);
+  const avancesServicio = useMemo(() => listarAvances(region, periodo), [region, periodo]);
 
   const extrasFiltradas = useMemo(
     () =>
@@ -117,17 +117,17 @@ const VistaPortalCiudadano = () => {
     [iniciativasExtras, region, periodo]
   );
 
-  const avancesInternos = useMemo(
+  const avancesPublicos = useMemo(
     () => ({
       success: true,
       filtros: { region, periodo },
-      data: [...avancesPublicos.data, ...extrasFiltradas]
+      data: [...avancesServicio.data, ...extrasFiltradas]
     }),
-    [avancesPublicos, extrasFiltradas, region, periodo]
+    [avancesServicio, extrasFiltradas, region, periodo]
   );
 
   const resumenPublico = useMemo(() => calcularResumen(avancesPublicos.data), [avancesPublicos]);
-  const resumenInterno = useMemo(() => calcularResumen(avancesInternos.data), [avancesInternos]);
+  const resumenInterno = resumenPublico;
 
   const mensajeResultadosPublico =
     avancesPublicos.data.length === 0
@@ -135,9 +135,9 @@ const VistaPortalCiudadano = () => {
       : `${avancesPublicos.data.length} iniciativa(s) disponible(s) para las comunidades`;
 
   const mensajeResultadosInterno =
-    avancesInternos.data.length === 0
+    avancesPublicos.data.length === 0
       ? 'Sin iniciativas que coincidan con los filtros.'
-      : `${avancesInternos.data.length} iniciativa(s) disponibles para revisión interna`;
+      : `${avancesPublicos.data.length} iniciativa(s) disponibles para revisión interna`;
 
   const onChangeFormField = event => {
     const { name, value } = event.target;
@@ -808,7 +808,7 @@ const VistaPortalCiudadano = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
-                      {avancesInternos.data.map(item => {
+                      {avancesPublicos.data.map(item => {
                         const esManual = item.origen === 'manual';
                         return (
                           <tr key={item.id}>
@@ -850,7 +850,7 @@ const VistaPortalCiudadano = () => {
                           </tr>
                         );
                       })}
-                      {avancesInternos.data.length === 0 && (
+                      {avancesPublicos.data.length === 0 && (
                         <tr>
                           <td colSpan="5" className="px-4 py-6 text-center text-slate-500 text-sm">
                             No hay iniciativas que coincidan con los filtros seleccionados.
@@ -870,3 +870,4 @@ const VistaPortalCiudadano = () => {
 };
 
 export default VistaPortalCiudadano;
+
