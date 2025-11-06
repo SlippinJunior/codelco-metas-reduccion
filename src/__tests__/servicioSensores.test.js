@@ -5,7 +5,9 @@ import {
   iniciarSimulacionAutomatica,
   detenerSimulacionAutomatica,
   obtenerSensor,
-  detenerTodasLasSimulaciones
+  detenerTodasLasSimulaciones,
+  registrarEstadoSensor,
+  listarBitacoraSensor
 } from '../services/servicioSensores';
 
 const STORAGE_KEY = 'codelco_sensores_demo';
@@ -15,6 +17,8 @@ const sensorBasico = {
   tipo: 'electricidad',
   division: 'División Demo',
   protocolo: 'HTTP',
+  latitud: -22.3296,
+  longitud: -68.9147,
   credenciales: {
     endpoint: 'https://demo.codelco.cl/api/test',
     secreto: 'token-123'
@@ -85,5 +89,22 @@ describe('servicioSensores', () => {
 
     const detalleFinal = await obtenerSensor(nuevoSensor.id);
     expect(detalleFinal.data.historialTransmisiones.length).toBe(historialInicial);
+  });
+
+  test('registrarEstadoSensor actualiza bitácora y estado', async () => {
+    const { data: nuevoSensor } = await crearSensor(sensorBasico);
+    const resultado = registrarEstadoSensor(nuevoSensor.id, 'mantenimiento', 'Mantención preventiva programada');
+
+    expect(resultado.success).toBe(true);
+    expect(resultado.data.estado).toBe('mantenimiento');
+    expect(resultado.data.bitacoraEstados[0].estado).toBe('mantenimiento');
+
+    const hoy = new Date().toISOString().slice(0, 10);
+    const rangoHoy = listarBitacoraSensor(nuevoSensor.id, { desde: hoy, hasta: hoy });
+    expect(rangoHoy.success).toBe(true);
+    expect(rangoHoy.data.some(evento => evento.estado === 'mantenimiento')).toBe(true);
+
+    const sinEventos = listarBitacoraSensor(nuevoSensor.id, { desde: '1990-01-01', hasta: '1990-12-31' });
+    expect(sinEventos.data.length).toBe(0);
   });
 });

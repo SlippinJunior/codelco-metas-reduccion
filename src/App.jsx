@@ -11,6 +11,9 @@ import ActivosTiempoReal from './pages/ActivosTiempoReal';
 import ActivoTiempoReal from './pages/ActivoTiempoReal';
 import VistaCadenaRegistros from './views/VistaCadenaRegistros';
 import VistaVerificacion from './views/VistaVerificacion';
+import VistaEscenariosMitigacion from './views/VistaEscenariosMitigacion';
+import VistaPortalCiudadano from './views/VistaPortalCiudadano';
+import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
 import Login from './pages/Login';
 import Header from './components/Header';
 import ExportarReportes from './components/ExportarReportes';
@@ -44,6 +47,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             {/* Vista de progreso: Real vs Meta */}
             <Route path="/progreso" element={<VistaProgreso />} />
+            {/* Comparador de escenarios de mitigacion */}
+            <Route path="/escenarios" element={<VistaEscenariosMitigacion />} />
+            {/* Portal ciudadano accesible */}
+            <Route path="/comunidades" element={<VistaPortalCiudadano />} />
+            <Route path="/comunidades/glosario" element={<VistaGlosarioCiudadano />} />
             {/* Panel de Auditoría - acceso simulado por rol */}
             <Route path="/auditoria" element={<VistaAuditoria />} />
 

@@ -26,13 +26,25 @@ const formatRelative = (timestamp) => {
 
 const badgeClasses = (estado) => {
   switch (estado) {
+    case 'alta':
+      return 'bg-sky-100 text-sky-800';
     case 'operativo':
       return 'bg-green-100 text-green-800';
-    case 'no-operativo':
+    case 'mantenimiento':
+      return 'bg-amber-100 text-amber-800';
+    case 'baja':
       return 'bg-red-100 text-red-800';
     default:
       return 'bg-gray-100 text-gray-700';
   }
+};
+
+const descripcionEstado = {
+  alta: 'Alta',
+  operativo: 'Operativo',
+  mantenimiento: 'En mantenimiento',
+  baja: 'Baja',
+  default: 'Sin estado'
 };
 
 const ListaSensores = ({ sensores = [], onVerDetalle, onSimular, onEliminar }) => {
@@ -64,12 +76,17 @@ const ListaSensores = ({ sensores = [], onVerDetalle, onSimular, onEliminar }) =
                   {sensor.protocolo}
                 </span>
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClasses(sensor.estado)}`}>
-                  {sensor.estado === 'operativo' ? 'Operativo' : 'No Operativo'}
+                  {descripcionEstado[sensor.estado] || descripcionEstado.default}
                 </span>
               </div>
               <p className="text-sm text-codelco-secondary">
                 <strong>División:</strong> {sensor.division || 'Sin referencia'}
               </p>
+              {sensor.coordenadas && (
+                <p className="text-xs text-gray-500">
+                  Lat/Lon: {Number(sensor.coordenadas.lat || 0).toFixed(4)}, {Number(sensor.coordenadas.lng || 0).toFixed(4)}
+                </p>
+              )}
               {sensor.descripcion && (
                 <p className="text-sm text-gray-600 max-w-xl">{sensor.descripcion}</p>
               )}
@@ -80,7 +97,7 @@ const ListaSensores = ({ sensores = [], onVerDetalle, onSimular, onEliminar }) =
                 Frecuencia: cada <strong>{sensor.frecuenciaSegundos}</strong> segundos
               </p>
               <p className="text-codelco-secondary">
-                Última transmisión: <span className="font-semibold text-codelco-dark">{formatRelative(sensor.ultimaTransmision)}</span>
+                Último heartbeat: <span className="font-semibold text-codelco-dark">{formatRelative(sensor.ultimaTransmision)}</span>
               </p>
               {sensor.ultimaTransmision && (
                 <p className="text-xs text-gray-500">

@@ -12,6 +12,10 @@
     "frecuenciaSegundos": 10,
     "descripcion": "Monitorea consumo instantáneo de diésel en flota minera.",
     "estado": "operativo",
+    "coordenadas": {
+      "lat": -34.0843,
+      "lng": -70.3568
+    },
     "ultimaTransmision": "2025-09-26T11:24:30.000Z",
     "historialTransmisiones": [
       {
@@ -71,6 +75,36 @@
         "mensaje": "Paquete confirmado en broker demo."
       }
     ],
+    "bitacoraEstados": [
+      {
+        "id": "bit-001-1",
+        "estado": "alta",
+        "fecha": "2023-02-14T08:45:00.000Z",
+        "usuario": "integrador-lhd",
+        "comentario": "Alta inicial del sensor en flota subterránea."
+      },
+      {
+        "id": "bit-001-2",
+        "estado": "operativo",
+        "fecha": "2023-02-16T06:30:00.000Z",
+        "usuario": "coordinador-teniente",
+        "comentario": "Pruebas completadas, pasa a operación."
+      },
+      {
+        "id": "bit-001-3",
+        "estado": "mantenimiento",
+        "fecha": "2024-09-02T11:00:00.000Z",
+        "usuario": "mantención-lhd",
+        "comentario": "Cambio de firmware y ajuste de calibración."
+      },
+      {
+        "id": "bit-001-4",
+        "estado": "operativo",
+        "fecha": "2024-09-03T17:15:00.000Z",
+        "usuario": "mantención-lhd",
+        "comentario": "Se valida funcionamiento post mantenimiento."
+      }
+    ],
     "simulacionActiva": false
   },
   {
@@ -86,6 +120,10 @@
     "frecuenciaSegundos": 60,
     "descripcion": "Recibe paquete JSON con energía consumida cada minuto.",
     "estado": "operativo",
+    "coordenadas": {
+      "lat": -22.3296,
+      "lng": -68.9147
+    },
     "ultimaTransmision": "2025-09-26T10:59:00.000Z",
     "historialTransmisiones": [
       {
@@ -142,6 +180,36 @@
         "mensaje": "Respuesta 200 desde API demo."
       }
     ],
+    "bitacoraEstados": [
+      {
+        "id": "bit-002-1",
+        "estado": "alta",
+        "fecha": "2022-11-05T14:20:00.000Z",
+        "usuario": "integrador-sala-control",
+        "comentario": "Instalación en tablero de planta SX."
+      },
+      {
+        "id": "bit-002-2",
+        "estado": "operativo",
+        "fecha": "2022-11-07T09:00:00.000Z",
+        "usuario": "coordinador-energía",
+        "comentario": "Se habilita telemetría diaria para consumo energético."
+      },
+      {
+        "id": "bit-002-3",
+        "estado": "mantenimiento",
+        "fecha": "2024-03-18T16:45:00.000Z",
+        "usuario": "mantención-sx",
+        "comentario": "Ajuste en medidor de factor de potencia."
+      },
+      {
+        "id": "bit-002-4",
+        "estado": "operativo",
+        "fecha": "2024-03-19T12:10:00.000Z",
+        "usuario": "mantención-sx",
+        "comentario": "Validación exitosa posterior al ajuste."
+      }
+    ],
     "simulacionActiva": false
   },
   {
@@ -157,6 +225,10 @@
     "frecuenciaSegundos": 30,
     "descripcion": "Sensor de temperatura interna del horno flash.",
     "estado": "operativo",
+    "coordenadas": {
+      "lat": -23.0769,
+      "lng": -70.4271
+    },
     "ultimaTransmision": "2025-09-26T11:15:30.000Z",
     "historialTransmisiones": [
       {
@@ -213,6 +285,29 @@
         "mensaje": "Paquete procesado por listener demo."
       }
     ],
+    "bitacoraEstados": [
+      {
+        "id": "bit-003-1",
+        "estado": "alta",
+        "fecha": "2021-08-22T10:15:00.000Z",
+        "usuario": "integrador-fundición",
+        "comentario": "Registro inicial en plataforma de sensores térmicos."
+      },
+      {
+        "id": "bit-003-2",
+        "estado": "operativo",
+        "fecha": "2021-08-25T08:30:00.000Z",
+        "usuario": "jefe-turno-fundición",
+        "comentario": "Se habilita monitoreo permanente de cuchara."
+      },
+      {
+        "id": "bit-003-3",
+        "estado": "mantenimiento",
+        "fecha": "2024-12-01T13:25:00.000Z",
+        "usuario": "mantención-térmica",
+        "comentario": "Reemplazo de sensor de temperatura por desgaste."
+      }
+    ],
     "simulacionActiva": false
   },
   {
@@ -228,6 +323,10 @@
     "frecuenciaSegundos": 45,
     "descripcion": "Mide caudal instantáneo de agua recirculada en pilas de lixiviación.",
     "estado": "operativo",
+    "coordenadas": {
+      "lat": -22.2955,
+      "lng": -69.0822
+    },
     "ultimaTransmision": "2025-09-26T11:10:45.000Z",
     "historialTransmisiones": [
       {
@@ -282,6 +381,36 @@
         "fecha_hora_acuse": "2025-09-26T11:09:15.204Z",
         "estado": "recibido",
         "mensaje": "Respuesta 200 desde endpoint simulado."
+      }
+    ],
+    "bitacoraEstados": [
+      {
+        "id": "bit-004-1",
+        "estado": "alta",
+        "fecha": "2023-05-04T12:00:00.000Z",
+        "usuario": "integrador-rt",
+        "comentario": "Alta del medidor de caudal para recirculación."
+      },
+      {
+        "id": "bit-004-2",
+        "estado": "operativo",
+        "fecha": "2023-05-06T07:40:00.000Z",
+        "usuario": "coordinador-rt",
+        "comentario": "Queda operativo con telemetría hacia centro de mantención."
+      },
+      {
+        "id": "bit-004-3",
+        "estado": "mantenimiento",
+        "fecha": "2024-06-15T18:20:00.000Z",
+        "usuario": "mantención-rt",
+        "comentario": "Se realiza limpieza de línea y recalibración de caudalímetro."
+      },
+      {
+        "id": "bit-004-4",
+        "estado": "operativo",
+        "fecha": "2024-06-16T09:30:00.000Z",
+        "usuario": "mantención-rt",
+        "comentario": "Prueba de caudal estable, vuelve a servicio."
       }
     ],
     "simulacionActiva": false

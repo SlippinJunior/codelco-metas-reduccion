@@ -22,6 +22,8 @@ const initialState = {
   tipo: '',
   division: '',
   protocolo: '',
+  latitud: '',
+  longitud: '',
   credenciales: {
     topic: '',
     endpoint: '',
@@ -140,6 +142,30 @@ const FormularioAltaSensor = ({ onSensorCreado }) => {
           options={PROTOCOLOS}
           required
           error={errores.protocolo}
+        />
+
+        <CampoInput
+          name="latitud"
+          label="Latitud"
+          type="number"
+          step="0.000001"
+          value={formData.latitud}
+          onChange={(e) => actualizarCampo('latitud', e.target.value)}
+          required
+          error={errores.latitud}
+          helpText="Ejemplo: -22.3296"
+        />
+
+        <CampoInput
+          name="longitud"
+          label="Longitud"
+          type="number"
+          step="0.000001"
+          value={formData.longitud}
+          onChange={(e) => actualizarCampo('longitud', e.target.value)}
+          required
+          error={errores.longitud}
+          helpText="Ejemplo: -68.9147"
         />
 
         {mostrarCampoMQTT && (

@@ -1,11 +1,32 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import TablaPaginar from './TablaPaginar';
+import MapaSensor from './MapaSensor';
 import { formatearFecha } from '../utils/helpers';
 import {
   simularRecepcion,
   iniciarSimulacionAutomatica,
-  detenerSimulacionAutomatica
+  detenerSimulacionAutomatica,
+  registrarEstadoSensor,
+  exportarBitacoraSensor,
+  ESTADOS_SENSOR
 } from '../services/servicioSensores';
+
+const estadoEtiquetas = {
+  alta: 'Alta',
+  operativo: 'Operativo',
+  mantenimiento: 'Mantenimiento',
+  baja: 'Baja',
+  default: 'Sin estado'
+};
+
+const estadoClases = {
+  alta: 'bg-sky-100 text-sky-800',
+  operativo: 'bg-green-100 text-green-800',
+  mantenimiento: 'bg-amber-100 text-amber-800',
+  baja: 'bg-red-100 text-red-800'
+};
+
+const claseEstado = (estado) => estadoClases[estado] || 'bg-gray-100 text-gray-700';
 
 const resumenPayload = (payload = {}) => {
   const entradas = Object.entries(payload);
@@ -19,8 +40,19 @@ const resumenPayload = (payload = {}) => {
 const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
   const [estadoAccion, setEstadoAccion] = useState({ tipo: '', mensaje: '' });
   const [procesando, setProcesando] = useState(false);
+  const [registrandoEstado, setRegistrandoEstado] = useState(false);
+  const [nuevoEstado, setNuevoEstado] = useState(sensor?.estado || ESTADOS_SENSOR[0]);
+  const [comentarioEstado, setComentarioEstado] = useState('');
+  const [filtroFechas, setFiltroFechas] = useState({ desde: '', hasta: '' });
+
+  useEffect(() => {
+    setNuevoEstado(sensor?.estado || ESTADOS_SENSOR[0]);
+    setComentarioEstado('');
+    setFiltroFechas({ desde: '', hasta: '' });
+  }, [sensor?.id, sensor?.estado]);
 
   const ultimaTransmision = sensor?.historialTransmisiones?.[0];
+  const ultimoEvento = sensor?.bitacoraEstados?.[0] || null;
 
   const columnasHistorial = useMemo(() => ([
     {
@@ -75,6 +107,59 @@ const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
       render: (valor) => <span className="text-sm text-gray-700">{valor}</span>
     }
   ]), []);
+
+  const columnasBitacora = useMemo(() => ([
+    {
+      key: 'fecha',
+      header: 'Fecha',
+      render: (valor) => formatearFecha(valor, true)
+    },
+    {
+      key: 'estado',
+      header: 'Estado',
+      render: (valor) => (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${claseEstado(valor)}`}>
+          {estadoEtiquetas[valor] || valor}
+        </span>
+      )
+    },
+    {
+      key: 'usuario',
+      header: 'Registrado por',
+      render: (valor) => <span className="text-sm text-gray-700">{valor || '—'}</span>
+    },
+    {
+      key: 'comentario',
+      header: 'Comentario',
+      render: (valor) => <span className="text-sm text-gray-600">{valor || 'Sin comentario'}</span>
+    }
+  ]), []);
+
+  const normalizarFiltroFecha = (valor, esFin = false) => {
+    if (!valor) return null;
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return null;
+    if (esFin) {
+      fecha.setHours(23, 59, 59, 999);
+    } else {
+      fecha.setHours(0, 0, 0, 0);
+    }
+    return fecha;
+  };
+
+  const bitacoraFiltrada = useMemo(() => {
+    if (!sensor?.bitacoraEstados) return [];
+    const desde = normalizarFiltroFecha(filtroFechas.desde, false);
+    const hasta = normalizarFiltroFecha(filtroFechas.hasta, true);
+    return sensor.bitacoraEstados
+      .filter(evento => {
+        const fecha = new Date(evento.fecha);
+        if (Number.isNaN(fecha.getTime())) return false;
+        if (desde && fecha < desde) return false;
+        if (hasta && fecha > hasta) return false;
+        return true;
+      });
+  }, [sensor?.bitacoraEstados, filtroFechas]);
 
   if (!sensor) {
     return (
@@ -132,38 +217,79 @@ const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
       JSON.stringify(registro.payload)
     ]));
 
-    const csvContent = [headers, ...rows]
-      .map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(','))
-      .join('\n');
+    const contenido = [headers.join(';'), ...rows.map(row => row.join(';'))].join('\n');
+    const blob = new Blob([contenido], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', `${sensor.id}_historial.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setEstadoAccion({ tipo: 'success', mensaje: 'Historial exportado en CSV (descarga simulada).' });
+  };
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const enlace = document.createElement('a');
-    enlace.href = url;
-    enlace.setAttribute('download', `historial-${sensor.id}.csv`);
-    document.body.appendChild(enlace);
-    enlace.click();
-    document.body.removeChild(enlace);
-    URL.revokeObjectURL(url);
+  const manejarRegistrarEstado = async (event) => {
+    event.preventDefault();
+    if (!sensor?.id) return;
+    setRegistrandoEstado(true);
+    const resultado = await registrarEstadoSensor(sensor.id, nuevoEstado, comentarioEstado.trim());
+    setRegistrandoEstado(false);
+    if (resultado.success) {
+      setEstadoAccion({
+        tipo: 'success',
+        mensaje: `Estado ${estadoEtiquetas[nuevoEstado] || nuevoEstado} registrado correctamente.`
+      });
+      setComentarioEstado('');
+      onActualizar?.();
+    } else {
+      setEstadoAccion({ tipo: 'error', mensaje: resultado.message || 'No fue posible registrar el estado.' });
+    }
+  };
 
-    setEstadoAccion({ tipo: 'success', mensaje: 'Historial exportado correctamente en CSV.' });
+  const manejarExportarBitacora = () => {
+    if (!sensor?.id) return;
+    const resultado = exportarBitacoraSensor(sensor.id, filtroFechas.desde, filtroFechas.hasta);
+    if (resultado.success) {
+      setEstadoAccion({
+        tipo: 'success',
+        mensaje: `Bitácora exportada (${resultado.total} eventos).`
+      });
+    } else {
+      setEstadoAccion({
+        tipo: 'error',
+        mensaje: resultado.message || 'No fue posible exportar la bitácora.'
+      });
+    }
+  };
+
+  const manejarCambioFiltro = (campo, valor) => {
+    setFiltroFechas(prev => ({ ...prev, [campo]: valor }));
+  };
+
+  const manejarLimpiarFiltro = () => {
+    setFiltroFechas({ desde: '', hasta: '' });
   };
 
   return (
-    <aside className="card space-y-6" aria-label={`Detalle del sensor ${sensor.nombre}`}>
-      <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+    <aside className="card space-y-6" aria-live="polite">
+      <header className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-semibold text-codelco-dark">{sensor.nombre}</h2>
-          <p className="text-sm text-codelco-secondary">{sensor.descripcion || 'Sin descripción proporcionada.'}</p>
-          <div className="mt-2 flex flex-wrap gap-2 text-xs">
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{sensor.tipo}</span>
-            <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded">{sensor.protocolo}</span>
-            <span className={sensor.simulacionActiva ? 'bg-green-100 text-green-800 px-2 py-1 rounded' : 'bg-gray-100 text-gray-700 px-2 py-1 rounded'}>
-              {sensor.simulacionActiva ? 'Simulación automática activa' : 'Simulación manual'}
+          <h2 className="text-xl font-semibold text-codelco-dark">{sensor.nombre}</h2>
+          <p className="text-sm text-codelco-secondary">
+            {sensor.tipo} · {sensor.protocolo} · {sensor.division}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded font-semibold ${claseEstado(sensor.estado)}`}>
+              {estadoEtiquetas[sensor.estado] || estadoEtiquetas.default}
             </span>
+            {ultimoEvento && (
+              <span className="text-codelco-secondary">
+                Último cambio: {formatearFecha(ultimoEvento.fecha, true)} · {estadoEtiquetas[ultimoEvento.estado] || ultimoEvento.estado}
+              </span>
+            )}
           </div>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className="btn-secondary"
@@ -181,22 +307,25 @@ const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
         </div>
       </header>
 
-      <section className="bg-gray-50 border border-gray-200 rounded-lg p-4" aria-live="polite">
-        <h3 className="text-lg font-semibold mb-3">Última transmisión</h3>
-        {ultimaTransmision ? (
-          <div className="space-y-2 text-sm text-gray-700">
-            <p><strong>Fecha:</strong> {formatearFecha(ultimaTransmision.timestamp, true)}</p>
-            <p><strong>Resumen:</strong> {resumenPayload(ultimaTransmision.payload)}</p>
-            <details>
-              <summary className="cursor-pointer text-codelco-accent">Ver payload completo</summary>
-              <pre className="bg-white border border-gray-200 rounded mt-2 p-3 text-xs overflow-x-auto">
+      <section className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4" aria-label="Ubicación y última transmisión">
+        <MapaSensor sensor={sensor} />
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4" aria-live="polite">
+          <h3 className="text-lg font-semibold mb-3">Última transmisión</h3>
+          {ultimaTransmision ? (
+            <div className="space-y-2 text-sm text-gray-700">
+              <p><strong>Fecha:</strong> {formatearFecha(ultimaTransmision.timestamp, true)}</p>
+              <p><strong>Resumen:</strong> {resumenPayload(ultimaTransmision.payload)}</p>
+              <details>
+                <summary className="cursor-pointer text-codelco-accent">Ver payload completo</summary>
+                <pre className="bg-white border border-gray-200 rounded mt-2 p-3 text-xs overflow-x-auto">
 {JSON.stringify(ultimaTransmision.payload, null, 2)}
-              </pre>
-            </details>
-          </div>
-        ) : (
-          <p className="text-sm text-codelco-secondary">Aún no se reciben transmisiones para este sensor.</p>
-        )}
+                </pre>
+              </details>
+            </div>
+          ) : (
+            <p className="text-sm text-codelco-secondary">Aún no se reciben transmisiones para este sensor.</p>
+          )}
+        </div>
       </section>
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,7 +350,7 @@ const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
                   <div className="font-mono text-xs break-words">Endpoint: {sensor.credenciales?.endpoint || 'N/D'}</div>
                 )}
                 {sensor.credenciales?.secreto && (
-                  <div className="font-mono text-xs break-words">Secreto: ••••••••</div>
+                  <div className="font-mono text-xs break-words">Secreto: ********</div>
                 )}
               </dd>
             </div>
@@ -252,6 +381,93 @@ const DetalleSensor = ({ sensor, onCerrar, onActualizar }) => {
             </button>
           </div>
         </div>
+      </section>
+
+      <section className="bg-white border border-gray-200 rounded-lg p-4 space-y-4" aria-label="Bitácora de estados">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-semibold text-codelco-dark">Bitácora de estados</h3>
+            <p className="text-xs text-codelco-secondary">
+              Registra transiciones: alta, operativo, mantenimiento y baja.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-3 text-xs">
+            <div>
+              <label htmlFor="filtro-desde" className="block font-medium text-codelco-secondary mb-1">Desde</label>
+              <input
+                id="filtro-desde"
+                type="date"
+                value={filtroFechas.desde}
+                onChange={(e) => manejarCambioFiltro('desde', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            <div>
+              <label htmlFor="filtro-hasta" className="block font-medium text-codelco-secondary mb-1">Hasta</label>
+              <input
+                id="filtro-hasta"
+                type="date"
+                value={filtroFechas.hasta}
+                onChange={(e) => manejarCambioFiltro('hasta', e.target.value)}
+                className="form-input"
+              />
+            </div>
+            <button type="button" className="btn-secondary" onClick={manejarLimpiarFiltro}>
+              Limpiar
+            </button>
+            <button type="button" className="btn-accent" onClick={manejarExportarBitacora}>
+              Exportar bitácora
+            </button>
+          </div>
+        </div>
+
+        <form className="grid grid-cols-1 md:grid-cols-[200px_1fr_auto] gap-3" onSubmit={manejarRegistrarEstado}>
+          <div>
+            <label className="block text-xs font-medium text-codelco-secondary mb-1" htmlFor="estado-nuevo">
+              Nuevo estado
+            </label>
+            <select
+              id="estado-nuevo"
+              className="form-input"
+              value={nuevoEstado}
+              onChange={(e) => setNuevoEstado(e.target.value)}
+            >
+              {ESTADOS_SENSOR.map(estado => (
+                <option key={estado} value={estado}>
+                  {estadoEtiquetas[estado] || estado}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-codelco-secondary mb-1" htmlFor="comentario-estado">
+              Comentario (opcional)
+            </label>
+            <textarea
+              id="comentario-estado"
+              className="form-input h-12"
+              value={comentarioEstado}
+              onChange={(e) => setComentarioEstado(e.target.value)}
+              placeholder="Detalle breve de la intervención o motivo"
+            />
+          </div>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={registrandoEstado}
+            >
+              Registrar estado
+            </button>
+          </div>
+        </form>
+
+        <TablaPaginar
+          columns={columnasBitacora}
+          data={bitacoraFiltrada}
+          emptyMessage="Sin eventos registrados en la bitácora."
+          ariaLabel="Tabla de bitácora de estados del sensor"
+        />
       </section>
 
       {estadoAccion.mensaje && (
