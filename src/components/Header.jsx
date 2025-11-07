@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Header() {
@@ -6,8 +6,32 @@ function Header() {
   const cu = localStorage.getItem('currentUser');
   const user = cu ? JSON.parse(cu) : null;
 
+  const navItems = useMemo(() => ([
+    { to: '/dashboard', label: 'Dashboard', roles: ['any'] },
+    { to: '/progreso', label: 'Progreso', roles: ['analista-sustentabilidad', 'lider-sustentabilidad', 'control-interno', 'equipo-datos', 'admin'] },
+    { to: '/auditoria', label: 'Auditoría', roles: ['auditor', 'control-interno', 'admin'] },
+    { to: '/cadena-registros', label: 'Cadena de registros', roles: ['auditor', 'control-interno', 'admin'] },
+    { to: '/verificacion', label: 'Verificación', roles: ['auditor', 'control-interno', 'admin'] },
+    { to: '/operario/activos', label: 'Activos (Tiempo Real)', roles: ['operario', 'fundicion_turno', 'admin'] },
+    { to: '/alertas', label: 'Alertas', roles: ['jefe-operaciones', 'admin'] },
+    { to: '/exportar-reportes', label: 'Exportar reportes', roles: ['analista-sustentabilidad', 'lider-sustentabilidad', 'control-interno', 'equipo-datos', 'admin'] },
+    { to: '/ia-prediccion', label: 'IA Desvíos', roles: ['analista-sustentabilidad', 'lider-sustentabilidad', 'control-interno', 'equipo-datos', 'admin'] },
+    { to: '/escenarios-mitigacion', label: 'Escenarios', roles: ['analista-sustentabilidad', 'lider-sustentabilidad', 'control-interno', 'admin'] },
+    { to: '/sensores', label: 'Sensores', roles: ['operario', 'equipo-datos', 'control-interno', 'admin'] },
+    { to: '/anomalias', label: 'Anomalías', roles: ['equipo-datos', 'control-interno', 'admin'] },
+    { to: '/comunidades', label: 'Portal Ciudadano', roles: ['any', 'public'] },
+    { to: '/comunidades/glosario', label: 'Glosario Ciudadano', roles: ['any', 'public'] }
+  ]), []);
+
+  const visibleNavItems = useMemo(() => {
+    if (!user) {
+      return navItems.filter(item => item.roles.includes('public'));
+    }
+    return navItems.filter(item => item.roles.includes('any') || item.roles.includes(user.rol));
+  }, [navItems, user]);
+
   // no local theme handling here anymore; theme is not managed globally
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const logout = () => {
     localStorage.removeItem('currentUser');
@@ -17,32 +41,12 @@ function Header() {
   return (
     <header className="bg-codelco-primary text-white p-3 flex items-center justify-between shadow">
       <div className="flex items-center space-x-4">
-        <Link to="/dashboard" className="font-semibold text-white">Codelco - Metas</Link>
-        {user && (['control-interno','auditor'].includes(user.rol)) && (
-          <>
-            <Link to="/auditoria" className="text-sm text-white/90 hover:text-white">Auditoria</Link>
-            <Link to="/cadena-registros" className="text-sm text-white/90 hover:text-white">
-              Cadena de registros
-            </Link>
-            <Link to="/verificacion" className="text-sm text-white/90 hover:text-white">
-              Verificacion
-            </Link>
-          </>
-        )}
-        {user && (['operario','fundicion_turno'].includes(user.rol)) && (
-          <Link to="/operario/activos" className="text-sm text-white/90 hover:text-white">Activos (Tiempo Real)</Link>
-        )}
-        {/* Pestana exclusiva para Jefe de Operaciones */}
-        {user && user.rol === 'jefe-operaciones' && (
-          <Link to="/alertas" className="text-sm text-white/90 hover:text-white">Alertas</Link>
-        )}
-        <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
-        <Link to="/comunidades" className="text-sm text-white/90 hover:text-white">Portal Ciudadano</Link>
-        <Link to="/ia-prediccion" className="text-sm text-white/90 hover:text-white">IA Desvios</Link>
-        <Link to="/escenarios-mitigacion" className="text-sm text-white/90 hover:text-white">Escenarios</Link>
-        <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
-        <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>
-        <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalias</Link>
+        <Link to={user ? '/dashboard' : '/comunidades'} className="font-semibold text-white">Codelco - Metas</Link>
+        {visibleNavItems.map(item => (
+          <Link key={item.to} to={item.to} className="text-sm text-white/90 hover:text-white transition-colors">
+            {item.label}
+          </Link>
+        ))}
       </div>
       <div>
         {user ? (

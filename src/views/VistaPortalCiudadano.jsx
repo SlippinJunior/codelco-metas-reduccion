@@ -33,9 +33,9 @@ const calcularResumen = data => {
     totalIniciativas === 0
       ? 0
       : Math.round(
-          data.reduce((acumulado, item) => acumulado + (item.indicadores?.porcentajeAvance || 0), 0) /
-            totalIniciativas
-        );
+        data.reduce((acumulado, item) => acumulado + (item.indicadores?.porcentajeAvance || 0), 0) /
+        totalIniciativas
+      );
 
   return {
     success: true,
@@ -93,7 +93,7 @@ const VistaPortalCiudadano = () => {
 
   const puedeVerInterno = useMemo(() => {
     const rol = currentUser?.rol;
-    return ['control-interno', 'auditor', 'jefe-operaciones'].includes(rol);
+    return ['control-interno', 'auditor', 'admin', 'lider-sustentabilidad', 'analista-sustentabilidad'].includes(rol);
   }, [currentUser]);
 
   useEffect(() => {
@@ -343,11 +343,10 @@ const VistaPortalCiudadano = () => {
                 role="tab"
                 aria-selected={tabActiva === 'publico'}
                 onClick={() => setTabActiva('publico')}
-                className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${
-                  tabActiva === 'publico'
+                className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${tabActiva === 'publico'
                     ? 'bg-slate-100 text-slate-900'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Vista pública
               </button>
@@ -356,11 +355,10 @@ const VistaPortalCiudadano = () => {
                 role="tab"
                 aria-selected={tabActiva === 'interno'}
                 onClick={() => setTabActiva('interno')}
-                className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${
-                  tabActiva === 'interno'
+                className={`px-4 py-2 text-sm font-semibold rounded-t-lg transition-colors ${tabActiva === 'interno'
                     ? 'bg-slate-100 text-slate-900'
                     : 'text-slate-500 hover:text-slate-700'
-                }`}
+                  }`}
               >
                 Panel interno
               </button>
@@ -589,11 +587,10 @@ const VistaPortalCiudadano = () => {
                 </p>
                 {mensajeForm && (
                   <div
-                    className={`rounded-lg border px-4 py-3 text-sm ${
-                      mensajeForm.tipo === 'error'
+                    className={`rounded-lg border px-4 py-3 text-sm ${mensajeForm.tipo === 'error'
                         ? 'border-red-200 bg-red-50 text-red-700'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                    }`}
+                      }`}
                     role={mensajeForm.tipo === 'error' ? 'alert' : 'status'}
                   >
                     {mensajeForm.texto}

@@ -19,6 +19,25 @@ import VistaPrediccionIA from './views/VistaPrediccionIA';
 import VistaPortalCiudadano from './views/VistaPortalCiudadano';
 import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
 
+const getCurrentUser = () => {
+  try {
+    const raw = localStorage.getItem('currentUser');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (error) {
+    console.error('Error parsing currentUser', error);
+    return null;
+  }
+};
+
+const RequireAuth = ({ children }) => {
+  const user = getCurrentUser();
+  if (!user) {
+    return <Navigate to="/comunidades" replace />;
+  }
+  return children;
+};
+
 /**
  * Componente principal de la aplicación
  * 
@@ -26,6 +45,8 @@ import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
  * Incluye rutas para dashboard y creación de metas.
  */
 function App() {
+  const currentUser = getCurrentUser();
+
   return (
     <Router>
       <div className="App">
@@ -40,53 +61,59 @@ function App() {
         {/* Contenido principal */}
         <div id="main-content">
           <Routes>
-            {/* Ruta por defecto redirige a dashboard */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
+            {/* Ruta por defecto redirige según estado de sesión */}
+            <Route
+              path="/"
+              element={currentUser ? <Navigate to="/dashboard" replace /> : <Navigate to="/comunidades" replace />}
+            />
+
             {/* Dashboard principal - CA-R01-3: vista corporativa y filtrada */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route
+              path="/login"
+              element={currentUser ? <Navigate to="/dashboard" replace /> : <Login />}
+            />
             {/* Vista de progreso: Real vs Meta */}
-            <Route path="/progreso" element={<VistaProgreso />} />
+            <Route path="/progreso" element={<RequireAuth><VistaProgreso /></RequireAuth>} />
             {/* Panel de Auditoría - acceso simulado por rol */}
-            <Route path="/auditoria" element={<VistaAuditoria />} />
+            <Route path="/auditoria" element={<RequireAuth><VistaAuditoria /></RequireAuth>} />
 
             {/* Módulo demostrativo de cadena de registros con blockchain */}
-            <Route path="/cadena-registros" element={<VistaCadenaRegistros />} />
+            <Route path="/cadena-registros" element={<RequireAuth><VistaCadenaRegistros /></RequireAuth>} />
 
             {/* Verificación de integridad demostrativa */}
-            <Route path="/verificacion" element={<VistaVerificacion />} />
+            <Route path="/verificacion" element={<RequireAuth><VistaVerificacion /></RequireAuth>} />
 
             {/* Módulo demostrativo de sensores */}
-            <Route path="/sensores" element={<VistaSensores />} />
+            <Route path="/sensores" element={<RequireAuth><VistaSensores /></RequireAuth>} />
 
             {/* Módulo demostrativo de anomalías */}
-            <Route path="/anomalias" element={<VistaAnomalias />} />
+            <Route path="/anomalias" element={<RequireAuth><VistaAnomalias /></RequireAuth>} />
 
             {/* Exportar reportes comparativos */}
-            <Route path="/exportar-reportes" element={<ExportarReportes />} />
-            
+            <Route path="/exportar-reportes" element={<RequireAuth><ExportarReportes /></RequireAuth>} />
+
             {/* Crear meta - CA-R01-1 y CA-R01-2: formulario con validaciones */}
-            <Route path="/crear-meta" element={<CrearMeta />} />
+            <Route path="/crear-meta" element={<RequireAuth><CrearMeta /></RequireAuth>} />
 
             {/* Gestión de alertas y notificaciones multicanal */}
-            <Route path="/alertas" element={<Alertas />} />
+            <Route path="/alertas" element={<RequireAuth><Alertas /></RequireAuth>} />
 
             {/* Escenarios de mitigación y modelos IA */}
-            <Route path="/escenarios-mitigacion" element={<VistaEscenariosMitigacion />} />
-            <Route path="/ia-prediccion" element={<VistaPrediccionIA />} />
+            <Route path="/escenarios-mitigacion" element={<RequireAuth><VistaEscenariosMitigacion /></RequireAuth>} />
+            <Route path="/ia-prediccion" element={<RequireAuth><VistaPrediccionIA /></RequireAuth>} />
 
             {/* Portal ciudadano y contenido accesible */}
             <Route path="/comunidades" element={<VistaPortalCiudadano />} />
             <Route path="/comunidades/glosario" element={<VistaGlosarioCiudadano />} />
 
             {/* Monitor de activos y streaming simulado */}
-            <Route path="/operario/activos" element={<ActivosTiempoReal />} />
-            <Route path="/operario/activo/:id" element={<ActivoTiempoReal />} />
-            
+            <Route path="/operario/activos" element={<RequireAuth><ActivosTiempoReal /></RequireAuth>} />
+            <Route path="/operario/activo/:id" element={<RequireAuth><ActivoTiempoReal /></RequireAuth>} />
+
             {/* Ruta fallback para URLs no encontradas */}
-            <Route 
-              path="*" 
+            <Route
+              path="*"
               element={
                 <div className="min-h-screen bg-codelco-light flex items-center justify-center">
                   <div className="card max-w-md text-center">
@@ -109,7 +136,7 @@ function App() {
                     </button>
                   </div>
                 </div>
-              } 
+              }
             />
           </Routes>
         </div>
@@ -127,7 +154,7 @@ function App() {
               <h3 className="font-semibold text-codelco-dark mb-2 text-sm">Accesibilidad</h3>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <button 
+                  <button
                     onClick={() => document.body.style.fontSize = '110%'}
                     className="text-left w-full text-codelco-secondary hover:text-codelco-dark transition-colors"
                   >
@@ -135,7 +162,7 @@ function App() {
                   </button>
                 </li>
                 <li>
-                  <button 
+                  <button
                     onClick={() => document.body.style.fontSize = '100%'}
                     className="text-left w-full text-codelco-secondary hover:text-codelco-dark transition-colors"
                   >
@@ -143,7 +170,7 @@ function App() {
                   </button>
                 </li>
                 <li>
-                  <button 
+                  <button
                     onClick={() => {
                       const links = document.querySelectorAll('a, button');
                       links.forEach(link => link.style.textDecoration = 'underline');
@@ -159,21 +186,23 @@ function App() {
         </div>
 
         {/* Botón flotante para crear meta (acceso rápido) */}
-        <div className="fixed bottom-4 left-4 z-50">
-          <button
-            onClick={() => window.location.href = '/crear-meta'}
-            className="bg-codelco-primary text-white p-4 rounded-full shadow-lg hover:bg-blue-800 transition-all duration-200 focus:ring-2 focus:ring-codelco-accent focus:ring-offset-2 group"
-            aria-label="Crear nueva meta de reducción"
-            title="Crear Nueva Meta"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="absolute left-full ml-3 bg-codelco-dark text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-              Crear Meta
-            </span>
-          </button>
-        </div>
+        {currentUser && (
+          <div className="fixed bottom-4 left-4 z-50">
+            <button
+              onClick={() => window.location.href = '/crear-meta'}
+              className="bg-codelco-primary text-white p-4 rounded-full shadow-lg hover:bg-blue-800 transition-all duration-200 focus:ring-2 focus:ring-codelco-accent focus:ring-offset-2 group"
+              aria-label="Crear nueva meta de reducción"
+              title="Crear Nueva Meta"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span className="absolute left-full ml-3 bg-codelco-dark text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+                Crear Meta
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </Router>
   );

@@ -1,5 +1,4 @@
-import React from 'react';
-import Tooltip from './Tooltip';
+import React, { useMemo } from 'react';
 
 const DEFAULT_SIMULADA = {
   id: 'SIM-ALERT-001',
@@ -36,6 +35,17 @@ function SeverityPill({ nivel }) {
 export default function SimulacionAlertas({ resultados, onSimular, onExport }) {
   const tarjeta = DEFAULT_SIMULADA;
 
+  const resumen = useMemo(() => {
+    if (!resultados || resultados.length === 0) return null;
+    const severidades = resultados.reduce((acc, r) => {
+      acc[r.severidad] = (acc[r.severidad] || 0) + 1;
+      return acc;
+    }, {});
+    const indicadores = Array.from(new Set(resultados.map(r => r.indicadorNombre || r.indicador))).slice(0, 4);
+    const ventana = resultados[0].ventana || null;
+    return { severidades, indicadores, ventana, total: resultados.length };
+  }, [resultados]);
+
   return (
     <div>
       <div className="flex items-center justify-end mb-3 space-x-2">
@@ -68,7 +78,7 @@ export default function SimulacionAlertas({ resultados, onSimular, onExport }) {
             <div>
               <div className="text-lg font-semibold">{tarjeta.valorCalculado} {tarjeta.unidad}</div>
               <div className="text-sm text-gray-600 mt-1">Umbral: {tarjeta.umbral} {tarjeta.unidad}</div>
-              <div className="text-sm text-gray-600 mt-1">Exceso: {tarjeta.excesoAbs} ({(tarjeta.excesoPct*100).toFixed(1)}%)</div>
+              <div className="text-sm text-gray-600 mt-1">Exceso: {tarjeta.excesoAbs} ({(tarjeta.excesoPct * 100).toFixed(1)}%)</div>
             </div>
           </div>
 
@@ -76,6 +86,39 @@ export default function SimulacionAlertas({ resultados, onSimular, onExport }) {
         </div>
       ) : (
         <div>
+          {resumen && (
+            <div className="grid gap-3 md:grid-cols-3 mb-4">
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Total de alertas</div>
+                <div className="text-2xl font-semibold">{resumen.total}</div>
+                {resumen.ventana && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    Ventana {resumen.ventana.dias}d · {resumen.ventana.metodo}
+                    <div className="text-xs text-gray-500">{resumen.ventana.desde?.slice(0, 10)} → {resumen.ventana.hasta?.slice(0, 10)}</div>
+                  </div>
+                )}
+              </div>
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Severidades</div>
+                <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  {Object.entries(resumen.severidades).sort((a, b) => (b[1] - a[1])).map(([sev, cantidad]) => (
+                    <li key={sev} className="flex justify-between">
+                      <span>{sev}</span>
+                      <span className="font-medium">{cantidad}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Indicadores</div>
+                <ul className="mt-2 space-y-1 text-sm text-gray-600">
+                  {resumen.indicadores.map(ind => (
+                    <li key={ind}>{ind}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
           {/* If resultados exist, render a table - parent may render same table, but include basic fallback here */}
           <div className="overflow-x-auto">
             <table className="w-full table-auto border-collapse">
@@ -89,6 +132,7 @@ export default function SimulacionAlertas({ resultados, onSimular, onExport }) {
                   <th className="p-2">Exceso</th>
                   <th className="p-2">%</th>
                   <th className="p-2">Severidad</th>
+                  <th className="p-2">Dirección</th>
                   <th className="p-2">Regla</th>
                 </tr>
               </thead>
@@ -103,12 +147,18 @@ export default function SimulacionAlertas({ resultados, onSimular, onExport }) {
                     <td className="p-2 text-sm">{Number(((r.excesoAbs ?? r.exceso) || 0).toFixed(2))}</td>
                     <td className="p-2 text-sm">{((r.excesoPct ?? r.pct) ? (Math.round((r.excesoPct ?? r.pct) * 100) / 100) : '')}%</td>
                     <td className="p-2 text-sm">{r.severidad}</td>
+                    <td className="p-2 text-sm">{r.direccion || '>'}</td>
                     <td className="p-2 text-sm">{r.regla || r.reglaId}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          {resumen?.ventana?.valorVentana != null && (
+            <div className="mt-3 text-xs text-gray-600">
+              Promedio de ventana ({resumen.ventana.metodo}): <strong>{resumen.ventana.valorVentana}</strong> ({resumen.ventana.muestras} mediciones).
+            </div>
+          )}
         </div>
       )}
     </div>

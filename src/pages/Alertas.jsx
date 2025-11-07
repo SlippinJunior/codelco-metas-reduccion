@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import servicioAlertas, { DEFAULT_ALERTAS } from '../services/servicioAlertas';
+import servicioAlertas from '../services/servicioAlertas';
 import PoliticaEvaluacion from '../components/PoliticaEvaluacion';
 import SimulacionAlertas from '../components/SimulacionAlertas';
 import Tooltip from '../components/Tooltip';
@@ -10,12 +10,13 @@ const Placeholder = ({ name }) => (
 );
 
 function Alertas() {
-  const [config, setConfig] = useState(servicioAlertas.obtenerConfig());
-  const [historial, setHistorial] = useState([]);
+  const [config, setConfig] = useState(() => servicioAlertas.obtenerConfig());
+  const [historial, setHistorial] = useState(() => servicioAlertas.obtenerHistorial());
   const [simulacion, setSimulacion] = useState([]);
   const [guardando, setGuardando] = useState(false);
   const [reglasEdit, setReglasEdit] = useState(config.reglas || {});
   const [histFromService, setHistFromService] = useState([]);
+  const [mensaje, setMensaje] = useState(null);
   // Notificaciones multicanal (R11)
   const [notifSettings, setNotifSettings] = useState(() => servicioNotificaciones.getSettings());
   const [centro, setCentro] = useState([]);
@@ -37,15 +38,16 @@ function Alertas() {
     setConfig(servicioAlertas.obtenerConfig());
     setReglasEdit(servicioAlertas.obtenerConfig().reglas || {});
     setHistFromService(servicioAlertas.obtenerHistorial());
+    setHistorial(servicioAlertas.obtenerHistorial());
     if (!isBrowser) return undefined;
     // R11: iniciar worker y refrescar vistas
-    try { servicioNotificaciones.startWorker(); } catch {}
+    try { servicioNotificaciones.startWorker(); } catch { }
     const tick = setInterval(() => {
       try {
         setOutbox(servicioNotificaciones.listarOutbox());
         setEmailLog(servicioNotificaciones.listarEmailLog());
         setCentro(servicioNotificaciones.listarCentro(usuarioActual));
-      } catch {}
+      } catch { }
     }, 1500);
     setOutbox(servicioNotificaciones.listarOutbox());
     setEmailLog(servicioNotificaciones.listarEmailLog());
@@ -56,6 +58,12 @@ function Alertas() {
     };
   }, [isBrowser, usuarioActual]);
 
+  useEffect(() => {
+    if (!mensaje) return undefined;
+    const timer = setTimeout(() => setMensaje(null), 4000);
+    return () => clearTimeout(timer);
+  }, [mensaje]);
+
   const handleGuardar = async () => {
     setGuardando(true);
     // Ensure reglasEdit are part of the config before saving
@@ -63,32 +71,26 @@ function Alertas() {
     const resultado = await servicioAlertas.guardarConfigVersionada(configToSave, { usuario: JSON.parse(localStorage.getItem('currentUser') || '{}').usuario || 'anon' });
     setGuardando(false);
     if (resultado.success) {
+      if (resultado.entry?.config) {
+        setConfig(resultado.entry.config);
+        setReglasEdit(resultado.entry.config.reglas || {});
+      }
       // refresh history from service
       setHistorial(resultado.historial || []);
       setHistFromService(servicioAlertas.obtenerHistorial());
-      alert('Configuración guardada (versionada)');
+      setMensaje('Configuración guardada y versionada correctamente.');
     } else {
-      alert('Error guardando configuración');
+      setMensaje('Error guardando configuración.');
     }
   };
 
   const handleSimular = () => {
-    const alerts = servicioAlertas.simularAlertas();
-    if (alerts && alerts.length > 0) {
-      setSimulacion(alerts);
-      return;
-    }
-
-    // Fallback: generar alertas hipotéticas a partir de las reglas configuradas
-    const reglas = servicioAlertas.obtenerConfig().reglas || reglasEdit || {};
-    const fake = Object.entries(reglas).map(([tipo, r], idx) => ({
-      id: `hipo-${tipo}-${idx}`,
-      titulo: `${r.etiqueta || tipo} supera umbral hipotético`,
-      detalle: `Valor simulado por encima del umbral (${r.umbral ?? 'N/A'} ${r.unidad || ''}). Esta alerta es hipotética.`,
-      severidad: r.severidad || servicioAlertas.obtenerConfig().severidadPorDefecto || 'media',
-      timestamp: new Date().toISOString()
-    }));
-    setSimulacion(fake);
+    const cfg = { ...config, reglas: { ...(config.reglas || {}), ...(reglasEdit || {}) } };
+    const simuladas = servicioAlertas.simular(cfg);
+    setSimulacion(simuladas);
+    setMensaje(simuladas.length > 0
+      ? `Se generaron ${simuladas.length} alertas hipotéticas con lecturas históricas.`
+      : 'No se encontraron desviaciones bajo la configuración actual.');
   };
 
   return (
@@ -97,7 +99,31 @@ function Alertas() {
         <h1 className="text-2xl font-bold mb-4">Configuración de Alertas</h1>
 
         <section className="mb-6 card p-4">
-          <h2 className="font-semibold mb-2">Política de evaluación (emisiones)</h2>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div>
+              <h2 className="font-semibold text-lg">Política de evaluación (emisiones)</h2>
+              <p className="text-sm text-gray-600">Define la ventana, método y severidad base para todas las reglas de alertas.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+              <div className="rounded-lg border bg-white px-3 py-2 text-center">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Ventana</div>
+                <div className="text-base font-semibold">{config.ventanaDias} días</div>
+              </div>
+              <div className="rounded-lg border bg-white px-3 py-2 text-center">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Método</div>
+                <div className="text-base font-semibold">{config.metodo}</div>
+              </div>
+              <div className="rounded-lg border bg-white px-3 py-2 text-center">
+                <div className="text-xs uppercase tracking-[0.2em] text-gray-500">Severidad default</div>
+                <div className="text-base font-semibold">{config.severidadPorDefecto}</div>
+              </div>
+            </div>
+          </div>
+          {mensaje && (
+            <div className="mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-700">
+              {mensaje}
+            </div>
+          )}
           <PoliticaEvaluacion politica={config} onChange={p => setConfig(p)} />
           <div className="mt-3 flex space-x-2">
             <button onClick={handleGuardar} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-700" disabled={guardando}>{guardando ? 'Guardando...' : 'Guardar (versionar)'}</button>
@@ -110,25 +136,25 @@ function Alertas() {
             <div className="font-semibold mb-2">Crear / Editar regla completa</div>
             <div className="grid grid-cols-2 gap-2">
               <label className="block">Clave (indicador) <Tooltip>Variable a evaluar (p.ej., tCO₂e/ton Cu, consumo_diesel, SO₂).</Tooltip>
-                <input placeholder="Clave (indicador)" className="w-full rounded-lg border px-3 py-2" id="form-clave" value={config._formClave || ''} onChange={e=>setConfig({...config, _formClave: e.target.value})} aria-label="Clave indicador" />
+                <input placeholder="Clave (indicador)" className="w-full rounded-lg border px-3 py-2" id="form-clave" value={config._formClave || ''} onChange={e => setConfig({ ...config, _formClave: e.target.value })} aria-label="Clave indicador" />
               </label>
               <label className="block">Etiqueta (nombre)
-                <input placeholder="Etiqueta (nombre)" className="w-full rounded-lg border px-3 py-2" id="form-etiqueta" value={config._formEtiqueta || ''} onChange={e=>setConfig({...config, _formEtiqueta: e.target.value})} aria-label="Etiqueta" />
+                <input placeholder="Etiqueta (nombre)" className="w-full rounded-lg border px-3 py-2" id="form-etiqueta" value={config._formEtiqueta || ''} onChange={e => setConfig({ ...config, _formEtiqueta: e.target.value })} aria-label="Etiqueta" />
               </label>
               <label className="block">Unidad
-                <input placeholder="Unidad (ej. L)" className="w-full rounded-lg border px-3 py-2" id="form-unidad" value={config._formUnidad || ''} onChange={e=>setConfig({...config, _formUnidad: e.target.value})} aria-label="Unidad" />
+                <input placeholder="Unidad (ej. L)" className="w-full rounded-lg border px-3 py-2" id="form-unidad" value={config._formUnidad || ''} onChange={e => setConfig({ ...config, _formUnidad: e.target.value })} aria-label="Unidad" />
               </label>
               <label className="block">Umbral <Tooltip>Valor límite en la misma unidad del indicador.</Tooltip>
-                <input placeholder="Umbral" type="number" className="w-full rounded-lg border px-3 py-2" id="form-umbral" value={config._formUmbral ?? ''} onChange={e=>setConfig({...config, _formUmbral: e.target.value === '' ? '' : Number(e.target.value)})} aria-label="Umbral" />
+                <input placeholder="Umbral" type="number" className="w-full rounded-lg border px-3 py-2" id="form-umbral" value={config._formUmbral ?? ''} onChange={e => setConfig({ ...config, _formUmbral: e.target.value === '' ? '' : Number(e.target.value) })} aria-label="Umbral" />
               </label>
               <label className="block">Dirección <Tooltip>Condición de disparo: '' excedencia, '&lt;' umbral inferior. Usa la unidad del indicador.</Tooltip>
-                <select className="w-full rounded-lg border px-3 py-2" id="form-direccion" value={config._formDireccion || '>'} onChange={e=>setConfig({...config, _formDireccion: e.target.value})} aria-label="Dirección">
+                <select className="w-full rounded-lg border px-3 py-2" id="form-direccion" value={config._formDireccion || '>'} onChange={e => setConfig({ ...config, _formDireccion: e.target.value })} aria-label="Dirección">
                   <option value=">">Mayor que (&gt;)</option>
                   <option value="<">Menor que (&lt;)</option>
                 </select>
               </label>
               <label className="block">Severidad <Tooltip>Prioridad de la alerta generada. Puede sobrescribir la severidad por defecto de la política.</Tooltip>
-                <select className="w-full rounded-lg border px-3 py-2" id="form-severidad" value={config._formSeveridad || 'media'} onChange={e=>setConfig({...config, _formSeveridad: e.target.value})} aria-label="Severidad">
+                <select className="w-full rounded-lg border px-3 py-2" id="form-severidad" value={config._formSeveridad || 'media'} onChange={e => setConfig({ ...config, _formSeveridad: e.target.value })} aria-label="Severidad">
                   <option value="baja">Baja</option>
                   <option value="media">Media</option>
                   <option value="alta">Alta</option>
@@ -136,7 +162,7 @@ function Alertas() {
                 </select>
               </label>
               <label className="block col-span-2">Ámbito <Tooltip>Dónde aplica: División / Proceso / Tags de equipo.</Tooltip>
-                <input placeholder="Ámbito (division/proceso)" className="w-full rounded-lg border px-3 py-2" id="form-ambito" value={config._formAmbito || ''} onChange={e=>setConfig({...config, _formAmbito: e.target.value})} aria-label="Ámbito" />
+                <input placeholder="Ámbito (division/proceso)" className="w-full rounded-lg border px-3 py-2" id="form-ambito" value={config._formAmbito || ''} onChange={e => setConfig({ ...config, _formAmbito: e.target.value })} aria-label="Ámbito" />
               </label>
             </div>
             <div className="mt-3 flex space-x-2">
@@ -153,12 +179,12 @@ function Alertas() {
                 };
                 setReglasEdit(prev => ({ ...prev, [clave]: nueva }));
                 // clear
-                setConfig({...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: ''});
+                setConfig({ ...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: '' });
                 alert('Regla creada/actualizada en borrador');
               }}>Guardar regla</button>
               <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={() => {
                 // cancel / clear
-                setConfig({...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: ''});
+                setConfig({ ...config, _formClave: '', _formEtiqueta: '', _formUnidad: '', _formUmbral: '', _formDireccion: '>', _formSeveridad: 'media', _formAmbito: '' });
               }}>Limpiar</button>
             </div>
           </div>
@@ -174,7 +200,7 @@ function Alertas() {
               <div className="flex flex-col space-y-2">
                 <button className="btn-secondary" onClick={() => {
                   // load into form for edit
-                  setConfig({...config, _formClave: tipo, _formEtiqueta: regla.etiqueta, _formUnidad: regla.unidad, _formUmbral: regla.umbral, _formDireccion: regla.direccion || '>', _formSeveridad: regla.severidad, _formAmbito: regla.ambito});
+                  setConfig({ ...config, _formClave: tipo, _formEtiqueta: regla.etiqueta, _formUnidad: regla.unidad, _formUmbral: regla.umbral, _formDireccion: regla.direccion || '>', _formSeveridad: regla.severidad, _formAmbito: regla.ambito });
                 }}>Editar</button>
                 <button className="btn-ghost" onClick={() => {
                   if (!confirm(`Eliminar regla ${tipo}?`)) return;
@@ -188,11 +214,11 @@ function Alertas() {
               // aplicar reglas parciales al servicio
               const res = servicioAlertas.actualizarReglasParciales(reglasEdit);
               if (res.success) {
-                alert('Reglas actualizadas');
-                setConfig(servicioAlertas.obtenerConfig());
+                setConfig(res.data);
                 setHistFromService(servicioAlertas.obtenerHistorial());
+                setMensaje('Reglas actualizadas en la política activa.');
               } else {
-                alert('Error actualizando reglas');
+                setMensaje('Error actualizando reglas.');
               }
             }}>Aplicar Reglas</button>
           </div>
@@ -213,15 +239,10 @@ function Alertas() {
           <h2 className="font-semibold mb-2">Simulación de alertas</h2>
           <SimulacionAlertas
             resultados={simulacion}
-            onSimular={() => {
-              const cfg = servicioAlertas.getConfig ? servicioAlertas.getConfig() : servicioAlertas.obtenerConfig();
-              const results = servicioAlertas.simular(cfg, null, cfg?.ventanaDias);
-              const normalized = (results || []).map((r, idx) => ({ id: `sim-${idx}-${r.indicador}-${r.timestamp || r.fecha || idx}`, ...r }));
-              setSimulacion(normalized);
-            }}
+            onSimular={handleSimular}
             onExport={() => {
               if (!simulacion || simulacion.length === 0) { alert('No hay resultados para exportar'); return; }
-              const headers = ['timestamp','indicador','ambito','valor','umbral','exceso','pct','severidad','regla'];
+              const headers = ['timestamp', 'indicador', 'ambito', 'valor', 'umbral', 'exceso', 'pct', 'severidad', 'regla'];
               const csv = [headers.join(',')].concat(simulacion.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','))).join('\n');
               const blob = new Blob([csv], { type: 'text/csv' });
               const url = URL.createObjectURL(blob);
@@ -237,7 +258,7 @@ function Alertas() {
               const res = servicioAlertas.registrarAlertas(simulacion);
               if (res && res.success) {
                 alert(`Se registraron ${res.added} alertas en el historial`);
-                setHistFromService(servicioAlertas.listarHistorial());
+                setHistFromService(servicioAlertas.obtenerHistorial());
               } else alert('Error registrando alertas');
             }}>Crear alertas demo</button>
           </div>
@@ -254,7 +275,7 @@ function Alertas() {
                 <input
                   className="w-full rounded-lg border px-3 py-2"
                   value={notifSettings.email.asuntoTemplate}
-                  onChange={e=> setNotifSettings(s=> ({...s, email:{...s.email, asuntoTemplate: e.target.value}}))}
+                  onChange={e => setNotifSettings(s => ({ ...s, email: { ...s.email, asuntoTemplate: e.target.value } }))}
                 />
               </label>
               <label className="block text-sm">
@@ -263,23 +284,23 @@ function Alertas() {
                   rows={6}
                   className="w-full rounded-lg border px-3 py-2 font-mono text-sm"
                   value={notifSettings.email.cuerpoTemplate}
-                  onChange={e=> setNotifSettings(s=> ({...s, email:{...s.email, cuerpoTemplate: e.target.value}}))}
+                  onChange={e => setNotifSettings(s => ({ ...s, email: { ...s.email, cuerpoTemplate: e.target.value } }))}
                 />
               </label>
               <div className="flex items-center gap-3">
                 <label className="inline-flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={!!notifSettings.canales?.web} onChange={e=> setNotifSettings(s=> ({...s, canales:{...s.canales, web: e.target.checked}}))} /> Web/App
+                  <input type="checkbox" checked={!!notifSettings.canales?.web} onChange={e => setNotifSettings(s => ({ ...s, canales: { ...s.canales, web: e.target.checked } }))} /> Web/App
                 </label>
                 <label className="inline-flex items-center gap-2 text-sm">
-                  <input type="checkbox" checked={!!notifSettings.canales?.email} onChange={e=> setNotifSettings(s=> ({...s, canales:{...s.canales, email: e.target.checked}}))} /> Correo
+                  <input type="checkbox" checked={!!notifSettings.canales?.email} onChange={e => setNotifSettings(s => ({ ...s, canales: { ...s.canales, email: e.target.checked } }))} /> Correo
                 </label>
               </div>
               <div className="flex gap-2">
-                <button className="btn-primary" onClick={()=>{
+                <button className="btn-primary" onClick={() => {
                   const r = servicioNotificaciones.saveSettings(notifSettings);
                   if (r?.success) alert('Plantilla/ajustes guardados');
                 }}>Guardar plantilla</button>
-                <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={()=>{
+                <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2" onClick={() => {
                   const alerta = (simulacion && simulacion[0]) || {
                     id: `demo-${Date.now()}`,
                     titulo: 'Emisiones SO2 por sobre umbral',
@@ -298,7 +319,7 @@ function Alertas() {
             <div className="space-y-3">
               <div className="font-medium">Bandeja (Web/App)</div>
               <ul className="space-y-2 max-h-64 overflow-auto">
-                {(centro||[]).map(n=> (
+                {(centro || []).map(n => (
                   <li key={n.id} className="border rounded p-2 bg-white flex justify-between items-center">
                     <div>
                       <div className="font-semibold">{n.titulo}</div>
@@ -307,16 +328,16 @@ function Alertas() {
                       {n.cerrado && <div className="text-xs text-blue-700">Cerrado por {n.cerrado.usuario} · {new Date(n.cerrado.fecha).toLocaleString()}</div>}
                     </div>
                     <div className="flex gap-2">
-                      {!n.leidoEn && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.marcarLeido(n.id, usuarioActual); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Marcar leído</button>}
-                      {!n.cerrado && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.cerrarNotificacion(n.id, usuarioActual, 'Atendido'); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Cerrar</button>}
+                      {!n.leidoEn && <button className="text-sm rounded border px-2 py-1" onClick={() => { servicioNotificaciones.marcarLeido(n.id, usuarioActual); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Marcar leído</button>}
+                      {!n.cerrado && <button className="text-sm rounded border px-2 py-1" onClick={() => { servicioNotificaciones.cerrarNotificacion(n.id, usuarioActual, 'Atendido'); setCentro(servicioNotificaciones.listarCentro(usuarioActual)); }}>Cerrar</button>}
                     </div>
                   </li>
                 ))}
-                {(!centro || centro.length===0) && <li className="text-sm text-gray-500">Sin notificaciones</li>}
+                {(!centro || centro.length === 0) && <li className="text-sm text-gray-500">Sin notificaciones</li>}
               </ul>
               <div className="font-medium mt-4">Envíos de correo (cola)</div>
               <ul className="space-y-2 max-h-64 overflow-auto">
-                {(outbox||[]).map(o=> (
+                {(outbox || []).map(o => (
                   <li key={o.id} className="border rounded p-2 bg-white flex justify-between items-center">
                     <div>
                       <div className="font-semibold">{o.subject}</div>
@@ -324,11 +345,11 @@ function Alertas() {
                       {o.lastError && <div className="text-xs text-red-600">Último error: {o.lastError}</div>}
                     </div>
                     <div className="flex gap-2">
-                      {o.status !== 'sent' && <button className="text-sm rounded border px-2 py-1" onClick={()=>{ servicioNotificaciones.forceRetry(o.id); setOutbox(servicioNotificaciones.listarOutbox()); }}>Reintentar</button>}
+                      {o.status !== 'sent' && <button className="text-sm rounded border px-2 py-1" onClick={() => { servicioNotificaciones.forceRetry(o.id); setOutbox(servicioNotificaciones.listarOutbox()); }}>Reintentar</button>}
                     </div>
                   </li>
                 ))}
-                {(!outbox || outbox.length===0) && <li className="text-sm text-gray-500">Sin elementos en cola</li>}
+                {(!outbox || outbox.length === 0) && <li className="text-sm text-gray-500">Sin elementos en cola</li>}
               </ul>
             </div>
           </div>
@@ -342,8 +363,9 @@ function Alertas() {
               <li key={h.version} className="border rounded p-3 bg-white">
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="font-semibold">Versión {i+1} — {h.version}</div>
+                    <div className="font-semibold">Versión {i + 1} — {h.version}</div>
                     <div className="text-xs text-gray-500">Guardado: {new Date(h.fecha).toLocaleString()} — Usuario: {h.usuario}</div>
+                    <div className="text-xs text-gray-500 mt-1">Ventana: {h.config?.ventanaDias} días · Método: {h.config?.metodo} · Severidad default: {h.config?.severidadPorDefecto}</div>
                   </div>
                 </div>
                 <div className="mt-3 text-sm text-gray-700">

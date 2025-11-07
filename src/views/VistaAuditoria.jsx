@@ -28,7 +28,7 @@ function VistaAuditoria() {
     const cu = localStorage.getItem('currentUser');
     if (!cu) { nav('/'); return; }
     const { rol } = JSON.parse(cu);
-    if (!['control-interno','auditor'].includes(rol)) { nav('/'); }
+    if (!['control-interno', 'auditor', 'admin'].includes(rol)) { nav('/'); }
   }, [nav]);
 
   useEffect(() => {
