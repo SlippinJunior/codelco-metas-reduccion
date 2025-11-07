@@ -4,76 +4,54 @@ import servicioAnomalias from './servicioAnomalias';
 import { generarId } from '../utils/helpers';
 import { arrayToCsv, downloadCsv } from '../utils/csv';
 
-export const ESTADOS_SENSOR = ['alta', 'operativo', 'mantenimiento', 'baja'];
-const ESTADO_POR_DEFECTO = 'operativo';
-const DEFAULT_COORDENADAS = { lat: -22.33, lng: -68.93 };
+export const ESTADOS_SENSOR = Object.freeze([
+  'operativo',
+  'mantenimiento',
+  'alerta',
+  'baja'
+]);
 
+const ESTADO_POR_DEFECTO = ESTADOS_SENSOR[0];
 const STORAGE_KEY = 'codelco_sensores_demo';
 const simulacionesActivas = new Map();
 const MAX_REGISTROS = 100;
-
-function numeroSeguro(valor, fallback = null) {
-  if (valor === '' || valor === null || valor === undefined) return fallback;
-  const num = Number(valor);
-  return Number.isFinite(num) ? num : fallback;
-}
-
-function normalizarBitacoraEntrada(entrada, estadoFallback = ESTADO_POR_DEFECTO) {
-  if (!entrada) return null;
-  const estado = ESTADOS_SENSOR.includes(entrada.estado) ? entrada.estado : estadoFallback;
-  const fecha = entrada.fecha || entrada.fechaHora || entrada.timestamp || new Date().toISOString();
-  return {
-    id: entrada.id || generarId('bit'),
-    estado,
-    fecha,
-    usuario: entrada.usuario || 'sistema-demo',
-    comentario: entrada.comentario || ''
-  };
-}
+const MAX_BITACORA = 200;
 
 function normalizarSensor(sensor) {
-  if (!sensor) return null;
-  const coordenadasRaw = sensor.coordenadas || {};
-  const lat = numeroSeguro(coordenadasRaw.lat, DEFAULT_COORDENADAS.lat);
-  const lng = numeroSeguro(coordenadasRaw.lng, DEFAULT_COORDENADAS.lng);
+  if (!sensor || typeof sensor !== 'object') {
+    return sensor;
+  }
+
   const bitacora = Array.isArray(sensor.bitacoraEstados)
     ? sensor.bitacoraEstados
+        .filter(evento => evento && typeof evento === 'object')
+        .map(evento => ({
+          ...evento,
+          sensorId: evento.sensorId || sensor.id,
+          fecha: evento.fecha || evento.fecha_hora || evento.timestamp || new Date().toISOString(),
+          descripcion: evento.descripcion ?? evento.detalle ?? '',
+          estado: evento.estado || sensor.estado || 'operativo',
+          origen: evento.origen || 'historial',
+          usuario: evento.usuario || evento.operador || 'sistema-demo'
+        }))
     : [];
 
-  const bitacoraNormalizada = bitacora
-    .map(item => normalizarBitacoraEntrada(item, sensor.estado || ESTADO_POR_DEFECTO))
-    .filter(Boolean)
-    .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
-
-  if (!bitacoraNormalizada.length) {
-    const ahora = new Date().toISOString();
-    bitacoraNormalizada.push(
-      normalizarBitacoraEntrada({
-        estado: 'alta',
-        fecha: ahora,
-        usuario: 'sistema-demo',
-        comentario: 'Alta generada automáticamente.'
-      }, 'alta')
-    );
-    bitacoraNormalizada.push(
-      normalizarBitacoraEntrada({
-        estado: sensor.estado || ESTADO_POR_DEFECTO,
-        fecha: ahora,
-        usuario: 'sistema-demo',
-        comentario: 'Estado inicial registrado automáticamente.'
-      }, sensor.estado || ESTADO_POR_DEFECTO)
-    );
-  }
+  const estadoNormalizado = ESTADOS_SENSOR.includes(sensor.estado)
+    ? sensor.estado
+    : ESTADO_POR_DEFECTO;
 
   return {
     ...sensor,
-    estado: ESTADOS_SENSOR.includes(sensor.estado) ? sensor.estado : ESTADO_POR_DEFECTO,
-    coordenadas: {
-      lat,
-      lng
-    },
-    bitacoraEstados: bitacoraNormalizada
+    estado: estadoNormalizado,
+    bitacoraEstados: bitacora.slice(0, MAX_BITACORA)
   };
+}
+
+function normalizarSensores(sensores = []) {
+  if (!Array.isArray(sensores)) {
+    return [];
+  }
+  return sensores.map(sensor => normalizarSensor({ ...sensor }));
 }
 
 function tieneLocalStorage() {
@@ -85,28 +63,32 @@ function tieneLocalStorage() {
 }
 
 function inicializarStorage() {
-  const base = sensoresEjemplo.map(normalizarSensor);
-  if (!tieneLocalStorage()) return base;
+  if (!tieneLocalStorage()) return [];
   const existente = window.localStorage.getItem(STORAGE_KEY);
   if (!existente) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-    return base.slice();
+    const inicial = normalizarSensores(sensoresEjemplo);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(inicial));
+    return inicial;
   }
   try {
     const parsed = JSON.parse(existente);
     if (Array.isArray(parsed)) {
-      return parsed.map(normalizarSensor);
+      const normalizados = normalizarSensores(parsed);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizados));
+      return normalizados;
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-    return base.slice();
+    const fallback = normalizarSensores(sensoresEjemplo);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+    return fallback;
   } catch (error) {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
-    return base.slice();
+    const fallback = normalizarSensores(sensoresEjemplo);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+    return fallback;
   }
 }
 
 function leerSensores() {
-  if (!tieneLocalStorage()) return sensoresEjemplo.map(normalizarSensor);
+  if (!tieneLocalStorage()) return normalizarSensores(sensoresEjemplo);
   const almacenados = window.localStorage.getItem(STORAGE_KEY);
   if (!almacenados) {
     return inicializarStorage();
@@ -114,7 +96,7 @@ function leerSensores() {
   try {
     const parsed = JSON.parse(almacenados);
     if (Array.isArray(parsed)) {
-      return parsed.map(normalizarSensor);
+      return normalizarSensores(parsed);
     }
     return inicializarStorage();
   } catch (error) {
@@ -124,8 +106,8 @@ function leerSensores() {
 
 function guardarSensores(sensores) {
   if (!tieneLocalStorage()) return;
-  const normalizados = sensores.map(normalizarSensor);
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizados));
+  const preparados = normalizarSensores(sensores);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(preparados));
 }
 
 function notificarActualizacion(sensorId) {
@@ -171,15 +153,6 @@ export function validarSensor(data) {
     }
   }
 
-  const latitud = numeroSeguro(data.coordenadas?.lat ?? data.latitud);
-  const longitud = numeroSeguro(data.coordenadas?.lng ?? data.longitud);
-  if (latitud === null || latitud < -90 || latitud > 90) {
-    errores.latitud = 'La latitud debe estar entre -90 y 90 grados.';
-  }
-  if (longitud === null || longitud < -180 || longitud > 180) {
-    errores.longitud = 'La longitud debe estar entre -180 y 180 grados.';
-  }
-
   return {
     esValido: Object.keys(errores).length === 0,
     errores
@@ -211,26 +184,6 @@ export async function crearSensor(data) {
   }
 
   const sensores = leerSensores();
-  const coordenadas = {
-    lat: numeroSeguro(data.coordenadas?.lat ?? data.latitud, DEFAULT_COORDENADAS.lat),
-    lng: numeroSeguro(data.coordenadas?.lng ?? data.longitud, DEFAULT_COORDENADAS.lng)
-  };
-  const fechaAlta = new Date().toISOString();
-  const usuarioAlta = data.usuarioAlta || 'coordinador-demo';
-  const bitacoraEstados = [
-    normalizarBitacoraEntrada({
-      estado: 'alta',
-      fecha: fechaAlta,
-      usuario: usuarioAlta,
-      comentario: data.comentarioAlta || 'Alta registrada desde formulario.'
-    }, 'alta'),
-    normalizarBitacoraEntrada({
-      estado: ESTADO_POR_DEFECTO,
-      fecha: fechaAlta,
-      usuario: usuarioAlta,
-      comentario: 'Estado inicial operativo.'
-    }, ESTADO_POR_DEFECTO)
-  ];
   const nuevoSensor = {
     id: generarId('sensor'),
     nombre: data.nombre.trim(),
@@ -244,12 +197,12 @@ export async function crearSensor(data) {
     },
     frecuenciaSegundos: Number(data.frecuenciaSegundos),
     descripcion: data.descripcion?.trim() || '',
-    estado: ESTADO_POR_DEFECTO,
+  estado: ESTADO_POR_DEFECTO,
     ultimaTransmision: null,
     historialTransmisiones: [],
     acuses: [],
-    coordenadas,
-    bitacoraEstados,
+    bitacoraEstados: [],
+    ultimaActualizacionEstado: null,
     simulacionActiva: false
   };
 
@@ -285,7 +238,7 @@ export async function actualizarSensor(id, cambios = {}) {
   }
 
   const anterior = { ...sensores[indice] };
-  sensores[indice] = normalizarSensor({ ...sensores[indice], ...cambios });
+  sensores[indice] = { ...sensores[indice], ...cambios };
   guardarSensores(sensores);
   notificarActualizacion(id);
 
@@ -307,103 +260,6 @@ export async function actualizarSensor(id, cambios = {}) {
   }
 
   return { success: true, data: sensores[indice] };
-}
-
-function normalizarLimiteFecha(valor, esFin = false) {
-  if (!valor) return null;
-  const fecha = new Date(valor);
-  if (Number.isNaN(fecha.getTime())) return null;
-  if (esFin) {
-    fecha.setHours(23, 59, 59, 999);
-  } else {
-    fecha.setHours(0, 0, 0, 0);
-  }
-  return fecha;
-}
-
-export function listarBitacoraSensor(sensorId, opciones = {}) {
-  const sensores = leerSensores();
-  const sensor = sensores.find(s => s.id === sensorId);
-  if (!sensor) {
-    return { success: false, message: 'Sensor no encontrado', data: [] };
-  }
-  const desde = normalizarLimiteFecha(opciones.desde, false);
-  const hasta = normalizarLimiteFecha(opciones.hasta, true);
-  const bitacora = (sensor.bitacoraEstados || []).filter(evento => {
-    const fecha = new Date(evento.fecha);
-    if (Number.isNaN(fecha.getTime())) return false;
-    if (desde && fecha < desde) return false;
-    if (hasta && fecha > hasta) return false;
-    return true;
-  });
-  return {
-    success: true,
-    data: bitacora,
-    sensor
-  };
-}
-
-export function registrarEstadoSensor(sensorId, estado, comentario = '', usuario = 'coordinador-demo') {
-  if (!ESTADOS_SENSOR.includes(estado)) {
-    return { success: false, message: 'Estado no reconocido' };
-  }
-  const sensores = leerSensores();
-  const indice = sensores.findIndex(s => s.id === sensorId);
-  if (indice === -1) {
-    return { success: false, message: 'Sensor no encontrado' };
-  }
-
-  const evento = normalizarBitacoraEntrada({
-    estado,
-    comentario,
-    usuario,
-    fecha: new Date().toISOString()
-  }, estado);
-
-  const bitacora = [evento, ...(sensores[indice].bitacoraEstados || [])];
-  const actualizado = {
-    ...sensores[indice],
-    estado,
-    bitacoraEstados: bitacora
-  };
-
-  sensores[indice] = normalizarSensor(actualizado);
-  guardarSensores(sensores);
-  notificarActualizacion(sensorId);
-
-  return {
-    success: true,
-    data: sensores[indice],
-    evento
-  };
-}
-
-export function exportarBitacoraSensor(sensorId, desde, hasta) {
-  const listado = listarBitacoraSensor(sensorId, { desde, hasta });
-  if (!listado.success) {
-    return listado;
-  }
-  const { data: bitacora, sensor } = listado;
-  if (!bitacora.length) {
-    return { success: false, message: 'No hay eventos en el rango solicitado.' };
-  }
-  const headers = [
-    { key: 'fecha', label: 'fecha' },
-    { key: 'estado', label: 'estado' },
-    { key: 'usuario', label: 'usuario' },
-    { key: 'comentario', label: 'comentario' }
-  ];
-  const rows = bitacora.map(evento => ({
-    ...evento
-  }));
-  const csv = arrayToCsv(headers, rows);
-  const nombreArchivo = `bitacora_${sensor?.id || 'sensor'}_${Date.now()}.csv`;
-  downloadCsv(nombreArchivo, csv);
-  return {
-    success: true,
-    nombreArchivo,
-    total: bitacora.length
-  };
 }
 
 export async function eliminarSensor(id) {
@@ -615,6 +471,146 @@ export function detenerTodasLasSimulaciones() {
   guardarSensores(sensores);
 }
 
+export function registrarEstadoSensor(sensorId, nuevoEstado, descripcion = '', opciones = {}) {
+  if (!nuevoEstado) {
+    return { success: false, message: 'Debe indicar el nuevo estado del sensor' };
+  }
+
+  if (!ESTADOS_SENSOR.includes(nuevoEstado)) {
+    return { success: false, message: 'Estado no reconocido' };
+  }
+
+  const sensores = leerSensores();
+  const indice = sensores.findIndex(sensor => sensor.id === sensorId);
+  if (indice === -1) {
+    return { success: false, message: 'Sensor no encontrado' };
+  }
+
+  const sensor = { ...sensores[indice] };
+  const evento = {
+    id: generarId('estado'),
+    sensorId,
+    estado: nuevoEstado,
+    descripcion: descripcion?.trim() || '',
+    fecha: new Date().toISOString(),
+    usuario: opciones.usuario || 'demo-usuario',
+    origen: opciones.origen || 'manual',
+    criticidad: opciones.criticidad || 'media'
+  };
+
+  sensor.estado = nuevoEstado;
+  const bitacora = Array.isArray(sensor.bitacoraEstados) ? sensor.bitacoraEstados.slice() : [];
+  sensor.bitacoraEstados = [evento, ...bitacora].slice(0, MAX_BITACORA);
+  sensor.ultimaActualizacionEstado = evento.fecha;
+
+  sensores[indice] = sensor;
+  guardarSensores(sensores);
+  notificarActualizacion(sensorId);
+
+  try {
+    servicioAuditoria.agregarEvento?.({
+      usuario: evento.usuario,
+      rol: opciones.rol || 'operador',
+      accion: 'actualizar-estado',
+      entidad: 'sensores',
+      entidad_id: sensorId,
+      motivo: 'Cambio de estado de sensor desde prototipo',
+      fecha_hora: evento.fecha,
+      detalle_nuevo: { estado: nuevoEstado, descripcion: evento.descripcion },
+      detalle_anterior: opciones.estadoAnterior || null,
+      ip_origen: '127.0.0.1'
+    });
+  } catch (error) {
+    // Ignorar errores de auditoría en demo
+  }
+
+  return { success: true, data: sensor };
+}
+
+function normalizarFechaFiltro(valor) {
+  if (!valor) return null;
+  if (valor instanceof Date) {
+    return valor.toISOString().slice(0, 10);
+  }
+  if (typeof valor === 'string') {
+    if (valor.length >= 10) {
+      return valor.slice(0, 10);
+    }
+    const fecha = new Date(valor);
+    if (!Number.isNaN(fecha.getTime())) {
+      return fecha.toISOString().slice(0, 10);
+    }
+  }
+  return null;
+}
+
+export function listarBitacoraSensor(sensorId, filtros = {}) {
+  const sensores = leerSensores();
+  const sensor = sensores.find(s => s.id === sensorId);
+  if (!sensor) {
+    return { success: false, message: 'Sensor no encontrado' };
+  }
+
+  const bitacora = Array.isArray(sensor.bitacoraEstados) ? sensor.bitacoraEstados : [];
+  const fechaDesde = normalizarFechaFiltro(filtros.desde);
+  const fechaHasta = normalizarFechaFiltro(filtros.hasta);
+
+  if (!fechaDesde && !fechaHasta) {
+    return { success: true, data: bitacora, sensor };
+  }
+
+  const filtrados = bitacora.filter(evento => {
+    if (!evento) return false;
+    const fechaEvento = normalizarFechaFiltro(evento.fecha || evento.fecha_hora || evento.timestamp);
+    if (!fechaEvento) return false;
+    if (fechaDesde && fechaEvento < fechaDesde) return false;
+    if (fechaHasta && fechaEvento > fechaHasta) return false;
+    return true;
+  });
+
+  return { success: true, data: filtrados, sensor };
+}
+
+export function exportarBitacoraSensor(sensorId, filtros = {}) {
+  const resultado = listarBitacoraSensor(sensorId, filtros);
+  if (!resultado.success) {
+    return resultado;
+  }
+
+  const { data: eventos, sensor } = resultado;
+  if (!eventos.length) {
+    return { success: false, message: 'No hay eventos en el rango solicitado.' };
+  }
+
+  const headers = [
+    { key: 'fecha', label: 'fecha' },
+    { key: 'estado', label: 'estado' },
+    { key: 'usuario', label: 'usuario' },
+    { key: 'descripcion', label: 'descripcion' },
+    { key: 'origen', label: 'origen' }
+  ];
+
+  const rows = eventos.map(evento => ({
+    fecha: normalizarFechaFiltro(evento.fecha || evento.fecha_hora || evento.timestamp) || evento.fecha || '',
+    estado: evento.estado || ESTADO_POR_DEFECTO,
+    usuario: evento.usuario || 'demo-usuario',
+    descripcion: evento.descripcion || evento.comentario || '',
+    origen: evento.origen || 'manual'
+  }));
+
+  const csv = arrayToCsv(headers, rows);
+  const nombreArchivo = `bitacora_${sensor?.id || sensorId}_${Date.now()}.csv`;
+  downloadCsv(nombreArchivo, csv);
+
+  return {
+    success: true,
+    data: {
+      nombreArchivo,
+      total: rows.length
+    }
+  };
+}
+
 export function suscribirseActualizaciones(callback) {
   if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') {
     return { unsubscribe: () => {} };
@@ -634,14 +630,14 @@ export default {
   obtenerSensor,
   crearSensor,
   actualizarSensor,
-  listarBitacoraSensor,
-  registrarEstadoSensor,
-  exportarBitacoraSensor,
   eliminarSensor,
   simularRecepcion,
   iniciarSimulacionAutomatica,
   detenerSimulacionAutomatica,
   detenerTodasLasSimulaciones,
   enviarAcuse,
+  registrarEstadoSensor,
+  listarBitacoraSensor,
+  exportarBitacoraSensor,
   suscribirseActualizaciones
 };

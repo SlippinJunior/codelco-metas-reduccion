@@ -112,13 +112,23 @@ function agregarPortada(doc, data, opciones, logoDataUrl) {
   doc.setFillColor('#0f172a');
   doc.rect(0, 0, pageWidth, 120, 'F');
 
-  if (logoDataUrl) {
-    doc.addImage(logoDataUrl, 'PNG', pageWidth / 2 - 50, 30, 100, 100, undefined, 'FAST');
-  } else {
+  const dibujarFallbackLogo = () => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(28);
     doc.setTextColor('#f97316');
     doc.text('CODELCO', pageWidth / 2 - 60, 90);
+  };
+
+  if (logoDataUrl) {
+    try {
+      const formato = logoDataUrl.includes('svg+xml') ? 'SVG' : 'PNG';
+      doc.addImage(logoDataUrl, formato, pageWidth / 2 - 50, 30, 100, 100, undefined, 'FAST');
+    } catch (error) {
+      console.warn('No se pudo renderizar el logo en el PDF, se usará fallback.', error);
+      dibujarFallbackLogo();
+    }
+  } else {
+    dibujarFallbackLogo();
   }
 
   doc.setTextColor('#0f172a');
@@ -176,10 +186,20 @@ function agregarResumenEjecutivo(doc, data) {
   doc.setFontSize(12);
   doc.setTextColor('#1f2937');
 
+  const promedioFormateado = Number.isFinite(Number(data.promedioProgreso))
+    ? `${Number(data.promedioProgreso).toFixed(1)}%`
+    : (data.promedioProgreso || 'N/D');
+  const divisionesDestacadas = data.topDivisiones?.length
+    ? data.topDivisiones.slice(0, 3).join(', ')
+    : 'Sin variaciones relevantes';
+  const procesosClave = data.topProcesos?.length
+    ? data.topProcesos.slice(0, 3).join(', ')
+    : 'Procesos generales';
+
   const parrafos = [
-    `Este informe resume ${data.totalMetas} metas de reducción activas, con un progreso promedio de ${data.promedioProgreso}% en las divisiones seleccionadas.`,
-    `Las divisiones con mayor avance son ${data.topDivisiones.join(', ') || 'sin variación destacable'} y el énfasis del periodo ${data.periodoEtiqueta} se centra en procesos de ${data.topProcesos.join(', ') || 'producción general'}.`,
-    'Los factores de riesgo se monitorean mediante indicadores energéticos y de emisiones alineados con la estrategia de sustentabilidad corporativa.'
+    `Este informe consolida ${data.totalMetas} metas de reducción activas y refleja un progreso promedio de ${promedioFormateado} durante ${data.periodoEtiqueta}.`,
+    `Las divisiones con mayor avance son ${divisionesDestacadas}, mientras que los procesos críticos monitoreados corresponden a ${procesosClave}.`,
+    'El seguimiento considera indicadores energéticos, huella de carbono y tácticas de mitigación alineadas con la estrategia corporativa de sustentabilidad.'
   ];
 
   let y = 110;
@@ -189,8 +209,56 @@ function agregarResumenEjecutivo(doc, data) {
       doc.text(linea, 40, y);
       y += 18;
     });
-    y += 10;
+    y += 8;
   });
+
+  if (y + 120 > 760) {
+    doc.addPage();
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor('#0f172a');
+    doc.text('Resumen ejecutivo (continuación)', 40, 70);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    doc.setTextColor('#1f2937');
+    y = 110;
+  }
+
+  const destacados = [
+    { titulo: 'Metas monitoreadas', valor: String(data.totalMetas ?? '-') },
+    { titulo: 'Progreso promedio', valor: promedioFormateado },
+    { titulo: 'Procesos clave', valor: procesosClave }
+  ];
+
+  const anchoCaja = 160;
+  const espacio = 20;
+  const baseX = 40;
+
+  destacados.forEach((item, index) => {
+    const x = baseX + index * (anchoCaja + espacio);
+    doc.setFillColor('#f8fafc');
+    doc.setDrawColor('#cbd5f5');
+    doc.roundedRect(x, y, anchoCaja, 90, 10, 10, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor('#0f172a');
+    doc.text(item.valor, x + 16, y + 36);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor('#475569');
+    const descripcion = doc.splitTextToSize(item.titulo, anchoCaja - 32);
+    descripcion.forEach((linea, idx) => {
+      doc.text(linea, x + 16, y + 58 + idx * 12);
+    });
+  });
+
+  const siguienteY = y + 110;
+  return {
+    pagina: doc.getCurrentPageInfo().pageNumber,
+    siguienteY
+  };
 }
 
 function dibujarTablaMetas(doc, metas, startY) {
@@ -368,7 +436,7 @@ export async function generarPDF(reporteData, opciones = {}) {
     divisiones: reporteData.divisionesSeleccionadas,
     incluirHistorial: opciones.incluirHistorial
   });
-  agregarResumenEjecutivo(doc, {
+  const resumenInfo = agregarResumenEjecutivo(doc, {
     totalMetas: reporteData.metas.length,
     promedioProgreso: reporteData.resumen.promedioProgreso,
     topDivisiones: reporteData.resumen.topDivisiones,
@@ -376,8 +444,22 @@ export async function generarPDF(reporteData, opciones = {}) {
     periodoEtiqueta
   });
 
-  let pagina = doc.getNumberOfPages();
-  let y = 100;
+  const haySeccionesDivision = reporteData.divisionesSeleccionadas.some(division => {
+    const metasDivision = reporteData.metasPorDivision?.[division] || [];
+    return metasDivision.length > 0;
+  });
+
+  let pagina;
+  let y;
+
+  if (haySeccionesDivision) {
+    doc.addPage();
+    pagina = doc.getCurrentPageInfo().pageNumber;
+    y = 80;
+  } else {
+    pagina = resumenInfo.pagina;
+    y = Math.min(resumenInfo.siguienteY + 30, 760);
+  }
 
   reporteData.divisionesSeleccionadas.forEach(division => {
     const metasDivision = reporteData.metasPorDivision[division] || [];
@@ -454,7 +536,8 @@ export async function generarPDF(reporteData, opciones = {}) {
     });
   }
 
-  const signaturePage = doc.addPage();
+  doc.addPage();
+  const signaturePageNumber = doc.getNumberOfPages();
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor('#0f172a');
@@ -477,11 +560,15 @@ export async function generarPDF(reporteData, opciones = {}) {
   const bufferInicial = doc.output('arraybuffer');
   const firma = await firmarSimulado(bufferInicial, opciones.firmante || 'Firmante Demo');
 
-  doc.setPage(signaturePage);
+  doc.setPage(signaturePageNumber);
   doc.setFillColor('#ffffff');
-  doc.rect(40, hashY - 12, 520, 32, 'F');
+  const hashLineas = doc.splitTextToSize(firma.hashBase64, 500);
+  const altoRect = Math.max(32, hashLineas.length * 12 + 12);
+  doc.rect(40, hashY - 12, 520, altoRect, 'F');
   doc.setTextColor('#1f2937');
-  doc.text(firma.hashBase64, 40, hashY);
+  hashLineas.forEach((linea, indice) => {
+    doc.text(linea, 40, hashY + indice * 12);
+  });
 
   const bufferFinal = doc.output('arraybuffer');
   const blob = new Blob([bufferFinal], { type: 'application/pdf' });

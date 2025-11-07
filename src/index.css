@@ -43,6 +43,51 @@
            hover:bg-orange-700 transition-colors duration-200 
            focus:ring-2 focus:ring-codelco-primary focus:ring-offset-2;
   }
+
+  .btn-glow {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold text-white shadow-lg transition-transform duration-200 focus:ring-2 focus:ring-codelco-accent focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    background-image: linear-gradient(135deg, #1e3a8a, #2563eb, #ea580c);
+  }
+
+  .btn-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+  }
+
+  .btn-glow:hover::after {
+    opacity: 1;
+  }
+
+  .btn-glow:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.01);
+  }
+
+  .btn-outline-bright {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-semibold text-codelco-primary border border-codelco-primary bg-white shadow transition-transform duration-200 focus:ring-2 focus:ring-codelco-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-outline-bright::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(30,58,138,0.08), rgba(234,88,12,0.12));
+    opacity: 0;
+    transition: opacity 0.25s ease-in-out;
+  }
+
+  .btn-outline-bright:hover::after {
+    opacity: 1;
+  }
+
+  .btn-outline-bright:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
   
   .form-input {
     @apply border border-gray-300 rounded-lg px-3 py-2 text-codelco-dark 

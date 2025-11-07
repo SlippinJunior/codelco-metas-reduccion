@@ -38,8 +38,8 @@ function Header() {
         )}
         <Link to="/progreso" className="text-sm text-white/90 hover:text-white">Progreso</Link>
         <Link to="/comunidades" className="text-sm text-white/90 hover:text-white">Portal Ciudadano</Link>
-        <Link to="/prediccion-ia" className="text-sm text-white/90 hover:text-white">IA Desvios</Link>
-        <Link to="/escenarios" className="text-sm text-white/90 hover:text-white">Escenarios</Link>
+        <Link to="/ia-prediccion" className="text-sm text-white/90 hover:text-white">IA Desvios</Link>
+        <Link to="/escenarios-mitigacion" className="text-sm text-white/90 hover:text-white">Escenarios</Link>
         <Link to="/exportar-reportes" className="text-sm text-white/90 hover:text-white">Exportar reportes</Link>
         <Link to="/sensores" className="text-sm text-white/90 hover:text-white">Sensores</Link>
         <Link to="/anomalias" className="text-sm text-white/90 hover:text-white">Anomalias</Link>

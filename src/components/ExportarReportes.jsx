@@ -497,24 +497,45 @@ const ExportarReportes = () => {
                 <button
                   type="button"
                   onClick={onGenerarPDF}
-                  className="btn-primary flex items-center justify-center gap-2"
+                  className="btn-glow"
                   disabled={generando === 'pdf' || cargando}
+                  aria-busy={generando === 'pdf'}
+                  title="Generar informe comparativo en PDF"
                 >
-                  {generando === 'pdf' && (
-                    <span className="inline-flex h-4 w-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                  {generando === 'pdf' ? (
+                    <span className="inline-flex h-5 w-5 border-2 border-white/80 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                  ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                      <path d="M7 3h8l4 4v11a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" />
+                      <path d="M7 11h10" />
+                      <path d="M7 15h6" />
+                    </svg>
                   )}
-                  Generar PDF
+                  <span className="leading-tight">
+                    {generando === 'pdf' ? 'Generando PDF…' : 'Generar PDF'}
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={onGenerarCSV}
-                  className="btn-accent flex items-center justify-center gap-2"
+                  className="btn-outline-bright"
                   disabled={generando === 'csv' || cargando}
+                  aria-busy={generando === 'csv'}
+                  title="Exportar datos en CSV"
                 >
-                  {generando === 'csv' && (
-                    <span className="inline-flex h-4 w-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                  {generando === 'csv' ? (
+                    <span className="inline-flex h-5 w-5 border-2 border-codelco-primary border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+                  ) : (
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                      <path d="M4 4h16v4H4z" />
+                      <path d="M4 10h16v10H4z" />
+                      <path d="M9 14h6" />
+                      <path d="M9 18h6" />
+                    </svg>
                   )}
-                  Generar CSV
+                  <span className="leading-tight">
+                    {generando === 'csv' ? 'Generando CSV…' : 'Generar CSV'}
+                  </span>
                 </button>
               </div>
               <p className="mt-3 text-xs text-codelco-secondary">
@@ -543,7 +564,11 @@ const ExportarReportes = () => {
             )}
 
             {mensaje && (
-              <div className={`card text-sm ${mensaje.tipo === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'}`}>
+              <div
+                className={`card text-sm ${mensaje.tipo === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'}`}
+                role="status"
+                aria-live="polite"
+              >
                 {mensaje.texto}
               </div>
             )}

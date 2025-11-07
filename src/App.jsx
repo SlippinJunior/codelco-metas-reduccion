@@ -6,18 +6,18 @@ import VistaProgreso from './views/VistaProgreso';
 import VistaAuditoria from './views/VistaAuditoria';
 import VistaSensores from './views/VistaSensores';
 import VistaAnomalias from './views/VistaAnomalias';
-import Alertas from './pages/Alertas';
-import ActivosTiempoReal from './pages/ActivosTiempoReal';
-import ActivoTiempoReal from './pages/ActivoTiempoReal';
 import VistaCadenaRegistros from './views/VistaCadenaRegistros';
 import VistaVerificacion from './views/VistaVerificacion';
-import VistaEscenariosMitigacion from './views/VistaEscenariosMitigacion';
-import VistaPortalCiudadano from './views/VistaPortalCiudadano';
-import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
-import VistaPrediccionIA from './views/VistaPrediccionIA';
 import Login from './pages/Login';
 import Header from './components/Header';
 import ExportarReportes from './components/ExportarReportes';
+import Alertas from './pages/Alertas';
+import ActivosTiempoReal from './pages/ActivosTiempoReal';
+import ActivoTiempoReal from './pages/ActivoTiempoReal';
+import VistaEscenariosMitigacion from './views/VistaEscenariosMitigacion';
+import VistaPrediccionIA from './views/VistaPrediccionIA';
+import VistaPortalCiudadano from './views/VistaPortalCiudadano';
+import VistaGlosarioCiudadano from './views/VistaGlosarioCiudadano';
 
 /**
  * Componente principal de la aplicación
@@ -48,13 +48,6 @@ function App() {
             <Route path="/login" element={<Login />} />
             {/* Vista de progreso: Real vs Meta */}
             <Route path="/progreso" element={<VistaProgreso />} />
-            {/* Comparador de escenarios de mitigacion */}
-            <Route path="/escenarios" element={<VistaEscenariosMitigacion />} />
-            {/* Portal ciudadano accesible */}
-            <Route path="/comunidades" element={<VistaPortalCiudadano />} />
-            <Route path="/comunidades/glosario" element={<VistaGlosarioCiudadano />} />
-            {/* Prediccion con IA */}
-            <Route path="/prediccion-ia" element={<VistaPrediccionIA />} />
             {/* Panel de Auditoría - acceso simulado por rol */}
             <Route path="/auditoria" element={<VistaAuditoria />} />
 
@@ -69,17 +62,27 @@ function App() {
 
             {/* Módulo demostrativo de anomalías */}
             <Route path="/anomalias" element={<VistaAnomalias />} />
-            {/* Administración de alertas (visible por rol) */}
-            <Route path="/alertas" element={<Alertas />} />
-            {/* Operario / Fundición - Activos tiempo real (DEMO) */}
-            <Route path="/operario/activos" element={<ActivosTiempoReal />} />
-            <Route path="/operario/activo/:id" element={<ActivoTiempoReal />} />
 
             {/* Exportar reportes comparativos */}
             <Route path="/exportar-reportes" element={<ExportarReportes />} />
             
             {/* Crear meta - CA-R01-1 y CA-R01-2: formulario con validaciones */}
             <Route path="/crear-meta" element={<CrearMeta />} />
+
+            {/* Gestión de alertas y notificaciones multicanal */}
+            <Route path="/alertas" element={<Alertas />} />
+
+            {/* Escenarios de mitigación y modelos IA */}
+            <Route path="/escenarios-mitigacion" element={<VistaEscenariosMitigacion />} />
+            <Route path="/ia-prediccion" element={<VistaPrediccionIA />} />
+
+            {/* Portal ciudadano y contenido accesible */}
+            <Route path="/comunidades" element={<VistaPortalCiudadano />} />
+            <Route path="/comunidades/glosario" element={<VistaGlosarioCiudadano />} />
+
+            {/* Monitor de activos y streaming simulado */}
+            <Route path="/operario/activos" element={<ActivosTiempoReal />} />
+            <Route path="/operario/activo/:id" element={<ActivoTiempoReal />} />
             
             {/* Ruta fallback para URLs no encontradas */}
             <Route 
